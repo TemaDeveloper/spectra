@@ -1,0 +1,10 @@
+/Users/artemijfridriksen/projects/chat_app/spectra/migration/target/debug/deps/libpolling-57e6814815e2417f.rmeta: /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/lib.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os/kqueue.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/kqueue.rs
+
+/Users/artemijfridriksen/projects/chat_app/spectra/migration/target/debug/deps/libpolling-57e6814815e2417f.rlib: /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/lib.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os/kqueue.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/kqueue.rs
+
+/Users/artemijfridriksen/projects/chat_app/spectra/migration/target/debug/deps/polling-57e6814815e2417f.d: /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/lib.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os/kqueue.rs /Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/kqueue.rs
+
+/Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/lib.rs:
+/Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os.rs:
+/Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/os/kqueue.rs:
+/Users/artemijfridriksen/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polling-3.7.3/src/kqueue.rs:

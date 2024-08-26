@@ -1,0 +1,23 @@
+[package]
+name = "spectra"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [".", "entity",  "migration"]
+
+[dependencies]
+migration = { path = "migration" }
+entity = { path = "entity" }
+axum = "0.7.5"
+axum-extra = { version = "0.9.3", features = ["cookie", "typed-header"] }
+sea-orm = { version = "1.0.0", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros" ] }
+tower-cookies = "0.10.0"
+uuid = { version = "1.10.0", features = ["v4"] }
+tower-http = { version = "0.5.2", features = ["cors", "fs", "limit", "timeout"] }
+tower = "0.5.0"
+dotenv = "0.15.0"
+serde = { version = "1.0.209", features = ["serde_derive"] }
+tokio = { version = "1.39.3", features = ["full"] }
+serde_json = "1.0.127"
+anyhow = "1.0.86"
