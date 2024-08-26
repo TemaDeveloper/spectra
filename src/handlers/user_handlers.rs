@@ -1,8 +1,10 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Extension, Json};
+use axum::{http::StatusCode, response::IntoResponse, Extension, Json};
 use ::entity::user;
 use sea_orm::{DatabaseConnection, EntityTrait, Set};
 use uuid::Uuid;
 use crate::models::user_models::CreateUser;
+
+//TODO: HOW STATE WORKS? 
 
 pub async fn insert_user(
     Extension(db) : Extension<DatabaseConnection>,
