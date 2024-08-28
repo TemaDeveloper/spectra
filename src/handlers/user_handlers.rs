@@ -4,8 +4,6 @@ use sea_orm::{DatabaseConnection, EntityTrait, Set};
 use uuid::Uuid;
 use crate::models::user_models::CreateUser;
 
-//TODO: HOW STATE WORKS? 
-
 pub async fn insert_user(
     Extension(db) : Extension<DatabaseConnection>,
     user_data : Json<CreateUser>, 
