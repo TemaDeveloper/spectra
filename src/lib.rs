@@ -3,6 +3,7 @@ use tokio::net::TcpListener;
 mod routes;
 mod handlers;
 mod models;
+mod auth;
 
 pub async fn run(db : DatabaseConnection) {
 

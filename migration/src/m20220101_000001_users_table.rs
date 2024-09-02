@@ -18,8 +18,9 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(User::Name).string().not_null())
-                    .col(ColumnDef::new(User::Login).unique_key().string().not_null())
+                    .col(ColumnDef::new(User::Username).unique_key().string().not_null())
+                    .col(ColumnDef::new(User::Password).string().not_null())
+                    .col(ColumnDef::new(User::Role).string().not_null())
                     .to_owned(),
             )
             .await
@@ -37,6 +38,7 @@ impl MigrationTrait for Migration {
 enum User {
     Table,
     Id,
-    Name,
-    Login,
+    Role,
+    Username,
+    Password,
 }
