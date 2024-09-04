@@ -1,3 +1,4 @@
+use axum::response::IntoResponse;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use sea_orm::sqlx::types::chrono::Utc;
 use lazy_static::lazy_static;
@@ -19,3 +20,4 @@ pub fn issue_jwt(uid : String, role : String) -> Result<String, jsonwebtoken::er
         &EncodingKey::from_secret(SECRET_KEY.as_bytes())
     )
 }
+

@@ -4,6 +4,7 @@ mod routes;
 mod handlers;
 mod models;
 mod auth;
+mod middlewares;
 
 pub async fn run(db : DatabaseConnection) {
 
