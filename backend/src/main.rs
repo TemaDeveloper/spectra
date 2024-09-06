@@ -2,7 +2,7 @@ use std::env;
 
 use sea_orm::Database;
 use dotenv::dotenv;
-use spectra::run;
+use backend::run;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

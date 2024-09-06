@@ -1,4 +1,4 @@
-use axum::{body::Body, http::{request, Request, StatusCode}, middleware::Next, response::{IntoResponse, Redirect}};
+use axum::{body::Body, http::{Request, StatusCode}, middleware::Next, response::{IntoResponse, Redirect}};
 use axum_extra::{headers::{authorization::Bearer, Authorization}, TypedHeader};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, Validation, decode};

@@ -1,4 +1,3 @@
-use axum::response::IntoResponse;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use sea_orm::sqlx::types::chrono::Utc;
 use lazy_static::lazy_static;

@@ -426,6 +426,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "backend"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "axum-extra",
+ "chrono",
+ "dotenv",
+ "entity",
+ "jsonwebtoken",
+ "lazy_static",
+ "migration",
+ "rand",
+ "sea-orm",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower 0.5.0",
+ "tower-cookies",
+ "tower-http",
+ "uuid",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2548,30 +2572,6 @@ checksum = "ce305eb0b4296696835b71df73eb912e0f1ffd2556a501fcede6e0c50349191c"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "spectra"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "axum-extra",
- "chrono",
- "dotenv",
- "entity",
- "jsonwebtoken",
- "lazy_static",
- "migration",
- "rand",
- "sea-orm",
- "serde",
- "serde_json",
- "tokio",
- "tower 0.5.0",
- "tower-cookies",
- "tower-http",
- "uuid",
 ]
 
 [[package]]

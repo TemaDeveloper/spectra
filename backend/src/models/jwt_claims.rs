@@ -21,6 +21,8 @@ impl fmt::Display for Role {
     }
 }
 
+//TODO: Implement Redis (IDs storage)
+
 #[derive(Clone, PartialEq)]
 pub enum Role{
     User, 
