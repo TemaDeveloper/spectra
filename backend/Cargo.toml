@@ -25,3 +25,4 @@ jsonwebtoken = "=9.3.0"
 chrono = "0.4.38"
 lazy_static = "1.5.0"
 rand = "0.8.5"
+redis = { version = "0.26.1", features = ["tokio-comp"] }
