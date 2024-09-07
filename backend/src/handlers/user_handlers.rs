@@ -1,11 +1,13 @@
 use axum::{body::Body, http::{header::{self, SET_COOKIE}, Response, StatusCode}, response::IntoResponse, Extension, Json};
 use ::entity::user;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter, Set};
+use tower_cookies::{cookie::SameSite, Cookie, Cookies};
 use uuid::Uuid;
 use crate::{models::user_models::{CreateUser, LoginRequest}, redis_manager::session_manager::set_session_id};
 use crate::auth::jwt::issue_jwt;
 
 pub async fn insert_user(
+    cookies: Cookies,
     Extension(db) : Extension<DatabaseConnection>,
     user_data : Json<CreateUser>, 
 ) -> impl IntoResponse{
@@ -30,13 +32,19 @@ pub async fn insert_user(
 
             let token_clone = token.clone();
 
-            match set_session_id(token.to_string(), user_id.to_string()).await {
-                Ok(_) => println!("The session_id was stored in redis"), 
-                Err(_) => eprintln!("The error occured in storing session_id into redis"),
+            match set_session_id(bearer_id.to_string(), user_id.to_string()).await {
+                Ok(_) => println!("The bearer_id was stored in redis"), 
+                Err(_) => eprintln!("The error occured in storing bearer_id into redis"),
             }
 
+            let mut cookie = Cookie::new("bearer_id", bearer_id.to_string());
+            cookie.set_http_only(true);
+            cookie.set_path("/");
+            cookie.set_secure(true);
+            cookie.set_same_site(SameSite::Strict);
+            cookies.add(cookie);
+
             Response::builder()
-                .header(SET_COOKIE, String::from(bearer_id))
                 .header(header::AUTHORIZATION, format!("Bearer {}", token_clone))
                 .status(StatusCode::CREATED)
                 .body("The user was created!")
@@ -52,9 +60,12 @@ pub async fn insert_user(
 }
 
 pub async fn login (
+    cookies: Cookies,
     Extension(db) : Extension<DatabaseConnection>,
-    user_data : Json<LoginRequest>
+    user_data : Json<LoginRequest>, 
 ) -> impl IntoResponse {
+
+    let bearer_id = Uuid::new_v4();
 
     let user = user::Entity::find()
         .filter(
@@ -76,16 +87,21 @@ pub async fn login (
                         match issue_jwt(id, "User".to_string()) {
                             Ok(token) => {
 
-                                let token_clone = token.clone();
-
-                                match set_session_id(token.to_string(), res.id.to_string()).await {
+                                match set_session_id(bearer_id.to_string(), res.id.to_string()).await {
                                     Ok(_) => println!("The session_id was stored in redis"), 
                                     Err(_) => eprintln!("The error occured in storing session_id into redis"),
                                 }
 
+                                let mut cookie = Cookie::new("bearer_id", bearer_id.to_string());
+                                cookie.set_http_only(true);
+                                cookie.set_path("/");
+                                cookie.set_secure(true);
+                                cookie.set_same_site(SameSite::Strict);
+                                cookies.add(cookie);
+
                                 Response::builder()
                                     .status(StatusCode::OK)
-                                    .header(header::AUTHORIZATION, format!("Bearer {}", token_clone))
+                                    .header(header::AUTHORIZATION, format!("Bearer {}", token))
                                     .body(Body::default())
                                     .unwrap()
                                 },
