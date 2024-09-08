@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import logo from '../logo.jpg';
+import bigImage from '../image_lotus.png';
+
 export default class Login extends Component {
     render() {
         return (
@@ -15,7 +17,6 @@ export default class Login extends Component {
                         Usernames are randomly generated.<br/>
                         Enjoy the game.
                     </p>
-                  
                 </div>
 
                 <div className="right-content">
