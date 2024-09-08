@@ -36,3 +36,58 @@
     transform: rotate(360deg);
   }
 }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: auto;
+}
+.container-flex {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+}
+
+.left-content, .right-content {
+  flex: 1;
+  height: 100%; /* Ensures both sides fill the entire height */
+}
+
+.left-content {
+  background-color: #f8f9fa;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.right-content {
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 768px) {
+  .container-flex {
+    flex-direction: column-reverse; /* Stack vertically */
+    height: auto; /* Remove fixed height */
+  }
+
+  .left-content, .right-content {
+    width: 100%; /* Full width on small screens */
+    height: auto; /* Adjust height for content */
+  }
+
+  .right-content {
+    margin-top: 20px; /* Add spacing between sections */
+  }
+}
