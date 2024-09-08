@@ -2,6 +2,7 @@ use dotenv::dotenv;
 use redis::{aio::MultiplexedConnection, AsyncCommands, Client};
 use std::{env, error::Error};
 
+
 pub async fn connect_redis() -> MultiplexedConnection {
     dotenv().ok();
     let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be set");
@@ -12,7 +13,7 @@ pub async fn connect_redis() -> MultiplexedConnection {
 
 pub async fn set_session_id(bearer_id : String, uuid : String) -> Result<(), Box<dyn Error>> {
     let mut con = connect_redis().await;
-    let session_set = con.set(&bearer_id, &uuid).await?;
+    let session_set = con.set_ex(&bearer_id, &uuid, 86400).await?;
     Ok(session_set)
 }
 

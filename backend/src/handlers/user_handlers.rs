@@ -1,5 +1,6 @@
-use axum::{body::Body, http::{header::{self, SET_COOKIE}, Response, StatusCode}, response::IntoResponse, Extension, Json};
+use axum::{body::Body, extract::Path, http::{header::{self}, Response, StatusCode}, response::{IntoResponse, Redirect}, Extension, Json};
 use ::entity::user;
+use entity::user::Column;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use tower_cookies::{cookie::SameSite, Cookie, Cookies};
 use uuid::Uuid;
@@ -47,14 +48,15 @@ pub async fn insert_user(
             Response::builder()
                 .header(header::AUTHORIZATION, format!("Bearer {}", token_clone))
                 .status(StatusCode::CREATED)
-                .body("The user was created!")
-                .unwrap();
+                .body(Body::default())
+                .unwrap()
+
             },
         Err(_) => {
             Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body("The user is not created!")
-                .unwrap();
+                .body(Body::default())
+                .unwrap()
         }
     }
 }
@@ -118,3 +120,33 @@ pub async fn login (
     }
 
 }   
+
+pub async fn logout(
+    Extension(db) : Extension<DatabaseConnection>,
+    Path(id) : Path<Uuid>,
+) -> impl IntoResponse {
+
+    let user = user::Entity::find()
+        .filter(Column::Id.eq(id))
+        .one(&db)
+        .await;
+
+    match user {
+        Ok(_) => {
+            let mut response =
+                (StatusCode::UNAUTHORIZED,
+                    Redirect::temporary("/login"))
+                    .into_response();
+                
+            let headers = response.headers_mut();
+            headers.insert(
+            header::SET_COOKIE,
+            "session_id=deleted; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+                .parse()
+                .unwrap()
+            );
+            return response;
+        },
+        Err(_) => {(StatusCode::INTERNAL_SERVER_ERROR, Body::default()).into_response()},
+    }
+}

@@ -49,7 +49,7 @@ pub async fn is_logedin(
                             header::SET_COOKIE,
                             "session_id=deleted; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
                                 .parse()
-                                .unwrap(),
+                                .unwrap()
                         );
                         return response;
                     }
