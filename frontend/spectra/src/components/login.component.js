@@ -1,9 +1,54 @@
 import React, { Component } from 'react'
-import logo from '../logo.jpg';
-import bigImage from '../image_lotus.png';
+import logo from '../spectra_dark_logo.png';
 
 export default class Login extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+          username: '',
+          password: '',
+        };
+      }
+    
+      // Handle form submission
+      handleSubmit = async (event) => {
+        event.preventDefault();
+    
+        const { username, password } = this.state;
+    
+        const response = await fetch('http://127.0.0.1:3000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+    
+        const result = await response.text();
+        console.log(result); // Login successful or Invalid credentials
+      };
+    
+      // Handle username input with validation
+      handleUsernameChange = (event) => {
+        const value = event.target.value;
+    
+        // Validation: No spaces, exactly 8 characters, one capital letter max
+        const noSpaces = value.replace(/\s/g, '');
+        const capitalLetterCount = (noSpaces.match(/[A-Z]/g) || []).length;
+    
+        if (noSpaces.length <= 8 && capitalLetterCount <= 1) {
+          this.setState({ username: noSpaces });
+        }
+      };
+    
+      // Handle password input
+      handlePasswordChange = (event) => {
+        this.setState({ password: event.target.value });
+      };
+
     render() {
+        const { username, password } = this.state;
         return (
             <div className="container-flex">
                 {/* Left side with content */}
@@ -24,7 +69,7 @@ export default class Login extends Component {
                     <div className="auth-wrapper">
                         <div className='auth-inner'>
 
-                            <form>
+                            <form onSubmit={this.handleSubmit}>
                                 <div className="text-center mb-3">
                                     <img
                                         src={logo}
@@ -37,11 +82,20 @@ export default class Login extends Component {
                                         }}
                                     />
                                 </div>
+
+                                
+
                                 <div className="auth-wrapper">
                                     <div className="mb-3">
                                         <label>Username</label>
                                         <input
                                             type="email"
+                                            value={username}
+                                            onChange={this.handleUsernameChange}
+                                            //TODO:
+                                            //here I need to specify that this input can be done without any spaces
+                                            //and also I need to ensure that there is going to be the exact length of username
+                                            //no capital letter or only one
                                             className="form-control"
                                             placeholder="username123"
                                         />
@@ -50,6 +104,8 @@ export default class Login extends Component {
                                         <label>Password</label>
                                         <input
                                             type="password"
+                                            value={password}
+                                            onChange={this.handlePasswordChange}
                                             className="form-control"
                                             placeholder="qwe-123-rty-123"
                                         />
