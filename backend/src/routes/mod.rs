@@ -1,5 +1,5 @@
 
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{Any, CorsLayer};
 use axum::http::{header::{AUTHORIZATION, CONTENT_TYPE, COOKIE, SET_COOKIE}, HeaderValue, Method};
 
 
@@ -12,14 +12,14 @@ pub mod message_routes;
 
 pub fn create_all_routes(db : DatabaseConnection) -> Router{
 
-    let cors = CorsLayer::new()
-        .allow_origin("http://127.0.0.1".parse::<HeaderValue>().unwrap())
-        .allow_methods([Method::POST, Method::GET])
-        .allow_headers([AUTHORIZATION, COOKIE, SET_COOKIE, CONTENT_TYPE]);
+    // let cors = CorsLayer::new()
+    //     .allow_origin("http://127.0.0.1".parse::<HeaderValue>().unwrap())
+    //     .allow_methods([Method::POST, Method::GET])
+    //     .allow_headers(Any);
 
     Router::new()
         .nest("/user", user_routes::create_user_routes(db.clone()))
         .nest("/message", message_routes::create_message_routes(db))
         .layer(CookieManagerLayer::new())
-        .layer(cors)
+        .layer(CorsLayer::very_permissive())
 }
