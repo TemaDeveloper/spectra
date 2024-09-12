@@ -23,6 +23,12 @@ pub async fn get_session_id(bearer_id : String) -> redis::RedisResult<bool>{
     Ok(exists)
 }
 
+pub async fn get_session_id_value(bearer_id : String) -> redis::RedisResult<String>{
+    let mut con = connect_redis().await;
+    let user_id: String = con.get(&bearer_id).await?;
+    Ok(user_id)
+}
+
 pub async fn delete_session_id(bearer_id : String) -> redis::RedisResult<bool>{
     let mut con = connect_redis().await;
     let deleted : bool = con.del(&bearer_id).await?;

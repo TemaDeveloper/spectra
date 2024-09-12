@@ -1,5 +1,7 @@
+use std::fmt::format;
+
 use crate::auth::jwt::issue_jwt;
-use crate::redis_manager::session_manager::delete_session_id;
+use crate::redis_manager::session_manager::{delete_session_id, get_session_id_value};
 use crate::{
     models::user_models::{decode_credentials, CreateUser, LoginPayload},
     redis_manager::session_manager::set_session_id,
@@ -12,12 +14,13 @@ use axum::{
         header::{self},
         Response, StatusCode,
     },
-    response::{IntoResponse, Redirect},
+    response::IntoResponse,
     Extension, Json,
 };
 use axum_extra::{headers, TypedHeader};
 use entity::user::Column;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter, Set};
+use tower_cookies::cookie::time::Duration;
 use tower_cookies::{cookie::SameSite, Cookie, Cookies};
 use uuid::Uuid;
 
@@ -51,7 +54,8 @@ pub async fn insert_user(
             cookie.set_http_only(true);
             cookie.set_path("/");
             cookie.set_secure(true);
-            cookie.set_same_site(SameSite::Strict);
+            cookie.set_max_age(Duration::hours(24));
+            cookie.set_same_site(SameSite::None);
             cookies.add(cookie);
 
             Response::builder()
@@ -66,9 +70,6 @@ pub async fn insert_user(
             .unwrap(),
     }
 }
-//TODO: redis always 839327d5-6e44-4a05-9068-0673e4d2741b store this instead of creating a new one (add to the cookie)
-//TODO: Hide authorization token (header)
-//TODO: Think about Cors and resolve the question with all privacy
 
 pub async fn login(
     cookies: Cookies,
@@ -137,18 +138,20 @@ pub async fn login(
     }
 
     // Set cookie with bearer ID
+
     let mut cookie = Cookie::new("bearer_id", bearer_id.to_string());
     cookie.set_http_only(true);
-    cookie.set_secure(true);
+    cookie.set_secure(true); //TODO: When I will use HTTPS turn on again
     cookie.set_path("/");
-    cookie.set_same_site(SameSite::Strict);
+    cookie.set_max_age(Duration::hours(24));
+    cookie.set_same_site(SameSite::None);
     cookies.add(cookie);
 
     // Return success response with JWT token in Authorization header
     Response::builder()
         .status(StatusCode::OK)
         .header("Authorization", format!("Bearer {}", token))
-        .body(Body::from("Login successful"))
+        .body(Body::from(format!("{}", "Successfully Logged In")))
         .unwrap()
 }
 
@@ -167,36 +170,45 @@ fn decode_cred(user_data: Json<LoginPayload>) -> Result<(String, String), String
 
 pub async fn logout(
     cookie: Option<TypedHeader<headers::Cookie>>,
-    Extension(db): Extension<DatabaseConnection>,
-    Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let user = user::Entity::find()
-        .filter(Column::Id.eq(id))
-        .one(&db)
-        .await;
 
-    match user {
-        Ok(_) => {
-            let mut response =
-                (StatusCode::UNAUTHORIZED, Redirect::temporary("/login")).into_response();
-
-            if let Some(cookie) = cookie {
-                if let Some(bearer_id) = cookie.get("bearer_id") {
-                    if let Ok(res) = delete_session_id(bearer_id.to_owned()).await {
-                        println!("The session was deleted: {res}");
-                    }
+    if let Some(cookie) = cookie {
+        if let Some(bearer_id) = cookie.get("bearer_id") {
+            match delete_session_id(bearer_id.to_string()).await {
+                Ok(res) => {
+                     return(
+                        StatusCode::OK,
+                        Body::from(format!("The user was logged out {}", res)),
+                    )
+                }
+                Err(_) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Body::from(format!("The error occured deleting cache")),
+                    )
+                        
                 }
             }
-
-            let headers = response.headers_mut();
-            headers.insert(
-                header::SET_COOKIE,
-                "session_id=deleted; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
-                    .parse()
-                    .unwrap(),
-            );
-            return response;
+        }else{
+            (StatusCode::INTERNAL_SERVER_ERROR, Body::from("Cannot find bearer_id in cookies".to_string()))
         }
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Body::default()).into_response(),
+    }else{
+        (StatusCode::INTERNAL_SERVER_ERROR, Body::from("Cannot find cookies".to_string()))
     }
+}
+
+pub async fn check_auth(cookies: Cookies) -> impl IntoResponse {
+    if let Some(cookie) = cookies.get("bearer_id") {
+        // Verify the session and get the user ID
+        let user_id = get_session_id_value(cookie.value().to_string()).await;
+        if let Ok(user_id) = user_id {
+            return (StatusCode::OK, user_id); // Respond with the user ID
+        }
+    }
+
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        format!("The bearer id no longer exists in cache"),
+    )
+    // If no valid session is found, respond with an error
 }

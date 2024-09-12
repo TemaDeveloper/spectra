@@ -19,7 +19,7 @@ class Header extends Component {
                                 alt="logo"
                             />
                             <Text marginTop={2} fontWeight={600} color="orange.300">
-                                Cat Chat
+                                Spectra
                             </Text>
                         </Stack>
                     </Box>

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import logo from '../spectra_dark_logo.png';
+import withNavigation from './with_nav.component.js'; 
 
-export default class Login extends Component {
+class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -30,14 +31,16 @@ export default class Login extends Component {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ credentials: encodedCredentials }),
+                credentials: 'include'
             });
 
             if (response.ok) {
                 const result = await response.text();
-                console.log('Response:', result); // Log the result or do something with it
-
-                // Example: Redirect to home or show a success message
-                this.setState({ loginSuccess: true });
+                console.log('Response:', result); 
+                this.props.setIsAuthenticated(true);
+                this.props.navigate('/home');
+                //this.setState({ loginSuccess: true });
+                // Redirect to home or show a success message
             } else {
                 console.error('Failed to login:', response.status, response.statusText);
             }
@@ -64,13 +67,6 @@ export default class Login extends Component {
     };
 
     render() {
-        const { username, password, loginSuccess } = this.state;
-
-        // Example: Redirect user after successful login
-        if (loginSuccess) {
-            return <div>Login successful! Redirecting...</div>;
-        }
-
         return (
             <div className="container-flex">
                 {/* Left side with content */}
@@ -108,7 +104,7 @@ export default class Login extends Component {
                                         <label>Username</label>
                                         <input
                                             type="text"
-                                            value={username}
+                                            value={this.state.username}
                                             onChange={this.handleUsernameChange}
                                             className="form-control"
                                             placeholder="username123"
@@ -118,7 +114,7 @@ export default class Login extends Component {
                                         <label>Password</label>
                                         <input
                                             type="password"
-                                            value={password}
+                                            value={this.state.password}
                                             onChange={this.handlePasswordChange}
                                             className="form-control"
                                             placeholder="qwe-123-rty-123"
@@ -142,3 +138,4 @@ export default class Login extends Component {
         );
     }
 }
+export default withNavigation(Login)

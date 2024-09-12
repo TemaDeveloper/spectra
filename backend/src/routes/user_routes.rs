@@ -7,7 +7,7 @@ pub fn create_user_routes(db : DatabaseConnection) -> Router{
     Router::new()
         .route("/login", post(login))
         .route("/insert", post(insert_user))
-        .route("/logout/:id", post(logout))
+        .route("/logout", post(logout))
         .layer(Extension(db))
 
 }

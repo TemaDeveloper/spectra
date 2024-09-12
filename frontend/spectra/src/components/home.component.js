@@ -1,10 +1,33 @@
 import React, { Component } from "react";
-import { Box, Flex } from "@chakra-ui/core"
-import Message from "./min-component/message";
-import Header from "./min-component/header";
+// import { Box, Flex } from "@chakra-ui/core"
+// import Message from "./min-component/message";
+// import Header from "./min-component/header";
 //import UsersList from "./min-component/usersList";
 
 class Home extends Component {
+
+    handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const userId = this.props.userId;
+
+        try {
+            const response = await fetch('http://127.0.0.1:3000/user/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                const result = await response.text();
+                console.log('Response:', result); // Log the result or do something with it
+            } else {
+                console.error('Failed to log out:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('Error during fetch:', error);
+        }
+    };
+
     // constructor(props) {
     //     super(props)
     //     this.state = {
@@ -131,45 +154,57 @@ class Home extends Component {
 
     render() {
         return (
-            < React.Fragment >
-                <Box h="100vh" bg="gray.100">
-                    <Flex justifyContent="center">
-                        <Flex
-                            width={[
-                                "100%",
-                                "100%",
-                                "100%",
-                                "65%"
-                            ]}
-                            flexDirection="column"
-                            p={[0, 0, 0, 6]}
-                        >
-                            <Header
-                                // fullName={this.state.user.fullName}
-                                // profile_picture={this.state.user.profile_picture}
-                                // logout={this.props.logout}
-                            />
-                            <Flex align="center" justifyContent="center">
-                                {/* <UsersList
-                                    userId={this.state.userId}
-                                    usersList={this.state.usersList}
-                                    selectUser={this.selectUser}
-                                    getMessageFromRoom={this.getMessageFromRoom}
-                                    loadingData={this.state.loadingData}
-                                /> */}
-                                <Message
-                                    // userId={this.state.userId}
-                                    // userName={this.state.userName}
-                                    // usersList={this.state.usersList}
-                                    // roomName={this.state.roomName}
-                                    // loadingData={this.state.loadingData}
-                                    // messages={this.state.messages}
-                                />
-                            </Flex>
-                        </Flex>
-                    </Flex>
-                </Box>
-            </React.Fragment >
+
+            <form onSubmit={this.handleSubmit}>
+                <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ backgroundColor: '#000', color: '#fff', border: '#000' }}
+            >
+                Log Out
+            </button>
+            </form>
+            
+
+            // < React.Fragment >
+            //     <Box h="100vh" bg="gray.100">
+            //         <Flex justifyContent="center">
+            //             <Flex
+            //                 width={[
+            //                     "100%",
+            //                     "100%",
+            //                     "100%",
+            //                     "65%"
+            //                 ]}
+            //                 flexDirection="column"
+            //                 p={[0, 0, 0, 6]}
+            //             >
+            //                 <Header
+            //                     // fullName={this.state.user.fullName}
+            //                     // profile_picture={this.state.user.profile_picture}
+            //                     // logout={this.props.logout}
+            //                 />
+            //                 <Flex align="center" justifyContent="center">
+            //                     {/* <UsersList
+            //                         userId={this.state.userId}
+            //                         usersList={this.state.usersList}
+            //                         selectUser={this.selectUser}
+            //                         getMessageFromRoom={this.getMessageFromRoom}
+            //                         loadingData={this.state.loadingData}
+            //                     /> */}
+            //                     <Message
+            //                         // userId={this.state.userId}
+            //                         // userName={this.state.userName}
+            //                         // usersList={this.state.usersList}
+            //                         // roomName={this.state.roomName}
+            //                         // loadingData={this.state.loadingData}
+            //                         // messages={this.state.messages}
+            //                     />
+            //                 </Flex>
+            //             </Flex>
+            //         </Flex>
+            //     </Box>
+            // </React.Fragment >
         )
     }
 }
