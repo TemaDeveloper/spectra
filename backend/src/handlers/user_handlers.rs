@@ -1,4 +1,5 @@
 use crate::auth::jwt::issue_jwt;
+use crate::redis_manager::session_manager::delete_session_id;
 use crate::{
     models::user_models::{decode_credentials, CreateUser, LoginPayload},
     redis_manager::session_manager::set_session_id,
@@ -14,6 +15,7 @@ use axum::{
     response::{IntoResponse, Redirect},
     Extension, Json,
 };
+use axum_extra::{headers, TypedHeader};
 use entity::user::Column;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use tower_cookies::{cookie::SameSite, Cookie, Cookies};
@@ -66,7 +68,7 @@ pub async fn insert_user(
 }
 //TODO: redis always 839327d5-6e44-4a05-9068-0673e4d2741b store this instead of creating a new one (add to the cookie)
 //TODO: Hide authorization token (header)
-//TODO: Think about Cors and resolve the question with all privacy 
+//TODO: Think about Cors and resolve the question with all privacy
 
 pub async fn login(
     cookies: Cookies,
@@ -75,8 +77,8 @@ pub async fn login(
 ) -> impl IntoResponse {
     let bearer_id = Uuid::new_v4();
 
-      // Decode credentials
-      let credentials = match decode_cred(user_data) {
+    // Decode credentials
+    let credentials = match decode_cred(user_data) {
         Ok(creds) => creds,
         Err(_) => {
             eprintln!("Failed to decode credentials");
@@ -103,7 +105,11 @@ pub async fn login(
         }
         Err(err) => {
             eprintln!("Database error: {}", err);
-            return (StatusCode::INTERNAL_SERVER_ERROR, Body::from("Database error")).into_response();
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Body::from("Database error"),
+            )
+                .into_response();
         }
     };
 
@@ -112,7 +118,10 @@ pub async fn login(
         Ok(token) => token,
         Err(_) => {
             eprintln!("Failed to issue JWT");
-            return (StatusCode::INTERNAL_SERVER_ERROR, Body::from("Failed to issue token"))
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Body::from("Failed to issue token"),
+            )
                 .into_response();
         }
     };
@@ -124,7 +133,7 @@ pub async fn login(
             StatusCode::INTERNAL_SERVER_ERROR,
             Body::from("Failed to store session"),
         )
-        .into_response();
+            .into_response();
     }
 
     // Set cookie with bearer ID
@@ -157,6 +166,7 @@ fn decode_cred(user_data: Json<LoginPayload>) -> Result<(String, String), String
 }
 
 pub async fn logout(
+    cookie: Option<TypedHeader<headers::Cookie>>,
     Extension(db): Extension<DatabaseConnection>,
     Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
@@ -169,6 +179,14 @@ pub async fn logout(
         Ok(_) => {
             let mut response =
                 (StatusCode::UNAUTHORIZED, Redirect::temporary("/login")).into_response();
+
+            if let Some(cookie) = cookie {
+                if let Some(bearer_id) = cookie.get("bearer_id") {
+                    if let Ok(res) = delete_session_id(bearer_id.to_owned()).await {
+                        println!("The session was deleted: {res}");
+                    }
+                }
+            }
 
             let headers = response.headers_mut();
             headers.insert(

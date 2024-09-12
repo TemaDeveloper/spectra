@@ -12,14 +12,14 @@ pub mod message_routes;
 
 pub fn create_all_routes(db : DatabaseConnection) -> Router{
 
-    // let cors = CorsLayer::new()
-    //     .allow_origin("http://127.0.0.1".parse::<HeaderValue>().unwrap())
-    //     .allow_methods([Method::POST, Method::GET])
-    //     .allow_headers(Any);
+    let cors = CorsLayer::new()
+        .allow_origin("http://localhost:3001".parse::<HeaderValue>().unwrap())
+        .allow_methods([Method::POST, Method::GET])
+        .allow_headers(Any);
 
     Router::new()
         .nest("/user", user_routes::create_user_routes(db.clone()))
         .nest("/message", message_routes::create_message_routes(db))
         .layer(CookieManagerLayer::new())
-        .layer(CorsLayer::very_permissive())
+        .layer(cors)
 }
