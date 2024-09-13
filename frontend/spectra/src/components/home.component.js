@@ -1,25 +1,44 @@
-import React, { Component } from "react";
-// import { Box, Flex } from "@chakra-ui/core"
-// import Message from "./min-component/message";
-// import Header from "./min-component/header";
-//import UsersList from "./min-component/usersList";
+import React, { Component } from 'react';
+import ChatHeader from '../min-components/header.js';
+import UsersList from '../min-components/userList.js';
+import ChatWindow from '../min-components/chatWindowComponent.js';
+import MessageInput from '../min-components/inputBox.js';
+import withNavigation from './with_nav.component'; // Assuming you're using this for navigation
 
 class Home extends Component {
+    state = {
+        users: [
+            { id: 1, name: 'User1' },
+            { id: 2, name: 'User2' },
+            { id: 3, name: 'User3' },
+        ],
+        messages: [],
+        currentUser: 'User1', // This would be the logged-in user
+    };
 
-    handleSubmit = async (event) => {
-        event.preventDefault();
+    handleSendMessage = (text) => {
+        const newMessage = {
+            sender: this.state.currentUser,
+            text: text,
+            time: new Date().toISOString(),
+        };
 
+        this.setState({ messages: [...this.state.messages, newMessage] });
+    };
+
+    // Logout using the userId prop and handle navigation
+    handleLogout = async () => {
         const userId = this.props.userId;
 
         try {
             const response = await fetch('http://127.0.0.1:3000/user/logout', {
                 method: 'POST',
-                credentials: 'include',
+                credentials: 'include', // Include cookies in the request
             });
 
             if (response.ok) {
-                const result = await response.text();
-                console.log('Response:', result); // Log the result or do something with it
+                console.log('Successfully logged out');
+                this.props.navigate('/sign-in', { replace: true }); // Navigate to login page
             } else {
                 console.error('Failed to log out:', response.status, response.statusText);
             }
@@ -28,186 +47,48 @@ class Home extends Component {
         }
     };
 
-    // constructor(props) {
-    //     super(props)
-    //     this.state = {
-    //         user: null,
-    //         userId: "",
-    //         userName: "",
-    //         usersList: [],
-    //         roomName: "chatRoom",
-    //         receiverDb: "",
-    //         messages: [],
-    //         loadingData: true
-    //     }
-    // }
+    componentDidMount() {
+        // Prevent back button navigation after logging out
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', this.handleBackButton);
+    }
 
-    // UNSAFE_componentWillMount() {
-    //     this.setState({
-    //         user: this.props.user,
-    //         userId: this.props.user.uid,
-    //         userName: this.props.user.userName
-    //     });
-    //     if (this.state.usersList.length < 1) { this.setUsersList() }
-    //     this.getMessageFromRoom(this.state.roomName);
-    // }
+    componentWillUnmount() {
+        window.removeEventListener('popstate', this.handleBackButton);
+    }
 
-    // setUsersList = async (users) => {
-    //     await database()
-    //         .ref("usersTable")
-    //         .on('value', snapshot => {
-    //             let usersList = [];
-    //             snapshot.forEach(snap => {
-    //                 usersList.push({
-    //                     uid: snap.key,
-    //                     name: snap.val().userName,
-    //                     img: snap.val().profile_picture
-    //                 })
-    //             })
-    //             this.setState({ usersList })
-    //         });
-    // }
-
-    // getMessageFromRoom = async (roomName) => {
-    //     this.setState({ loadingData: true })
-    //     let rootRef = await database().ref(roomName);
-    //     await rootRef.once('value', snapshot => {
-    //         let messages = [];
-    //         snapshot.forEach(snap => {
-    //             messages.push({
-    //                 uid: snap.val().uid,
-    //                 time: snap.val().time,
-    //                 name: snap.val().name,
-    //                 msg: snap.val().text,
-    //                 key: snap.key
-    //             });
-    //         });
-    //         this.setState({ messages, loadingData: false });
-    //     });
-    //     await this.unsubscribeRoom(this.state.roomName);
-    //     if (this.state.receiverDb) {
-    //         await this.unsubscribeRoom(this.state.receiverDb);
-    //     }
-    //     await this.subscribeRoom(roomName);
-    //     this.setState({ roomName: roomName });
-    // }
-
-    // selectUser = async (user) => {
-    //     this.setState({ loadingData: true })
-    //     let messages = [];
-    //     let senderDb = `${this.state.userId}+${user.uid}`;
-    //     let receiverDb = `${user.uid}+${this.state.userId}`;
-
-    //     await database().ref(senderDb).once("value", snapshot => {
-    //         snapshot.forEach(snap => {
-    //             messages.push({
-    //                 uid: snap.val().uid,
-    //                 time: snap.val().time,
-    //                 name: snap.val().name,
-    //                 msg: snap.val().text,
-    //                 key: snap.key
-    //             })
-    //         })
-    //     })
-    //     await database().ref(receiverDb).once("value", snapshot => {
-    //         snapshot.forEach(snap => {
-    //             messages.push({
-    //                 uid: snap.val().uid,
-    //                 time: snap.val().time,
-    //                 name: snap.val().name,
-    //                 msg: snap.val().text,
-    //                 key: snap.key
-    //             })
-    //         })
-    //         this.setState({ messages })
-    //     })
-
-    //     await this.unsubscribeRoom(this.state.roomName);
-    //     await this.subscribeRoom(senderDb);
-
-    //     if (this.state.receiverDb) {
-    //         await this.unsubscribeRoom(this.state.receiverDb);
-    //     }
-    //     await this.subscribeRoom(receiverDb);
-
-    //     this.setState({ roomName: senderDb, receiverDb, loadingData: false });
-    // }
-
-    // subscribeRoom = async (roomName) => {
-    //     await database().ref().child(roomName).limitToLast(1).on("child_added", snap => {
-    //         if (this.state.messages.filter(msg => msg.key === snap.key).length === 0) {
-    //             let newMsg = {
-    //                 uid: snap.val().uid,
-    //                 time: snap.val().time,
-    //                 name: snap.val().name,
-    //                 msg: snap.val().text,
-    //                 key: snap.key
-    //             }
-    //             this.setState({ messages: [...this.state.messages, newMsg] })
-    //         }
-    //     })
-    // }
-
-    // unsubscribeRoom = async (roomName) => {
-    //     await database().ref(roomName).off();
-    // }
+    handleBackButton = (event) => {
+        window.history.pushState(null, null, window.location.href);
+    };
 
     render() {
         return (
+            <div className="home-container">
+                {/* Header now includes username and logout functionality */}
+                <ChatHeader userName={this.state.currentUser} handleLogout={this.handleLogout} />
 
-            <form onSubmit={this.handleSubmit}>
-                <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ backgroundColor: '#000', color: '#fff', border: '#000' }}
-            >
-                Log Out
-            </button>
-            </form>
-            
+                <div className="home-content">
+                    {/* List of users on the left */}
+                    <UsersList
+                        users={this.state.users}
+                        selectUser={(user) => this.setState({ currentUser: user.name })}
+                    />
 
-            // < React.Fragment >
-            //     <Box h="100vh" bg="gray.100">
-            //         <Flex justifyContent="center">
-            //             <Flex
-            //                 width={[
-            //                     "100%",
-            //                     "100%",
-            //                     "100%",
-            //                     "65%"
-            //                 ]}
-            //                 flexDirection="column"
-            //                 p={[0, 0, 0, 6]}
-            //             >
-            //                 <Header
-            //                     // fullName={this.state.user.fullName}
-            //                     // profile_picture={this.state.user.profile_picture}
-            //                     // logout={this.props.logout}
-            //                 />
-            //                 <Flex align="center" justifyContent="center">
-            //                     {/* <UsersList
-            //                         userId={this.state.userId}
-            //                         usersList={this.state.usersList}
-            //                         selectUser={this.selectUser}
-            //                         getMessageFromRoom={this.getMessageFromRoom}
-            //                         loadingData={this.state.loadingData}
-            //                     /> */}
-            //                     <Message
-            //                         // userId={this.state.userId}
-            //                         // userName={this.state.userName}
-            //                         // usersList={this.state.usersList}
-            //                         // roomName={this.state.roomName}
-            //                         // loadingData={this.state.loadingData}
-            //                         // messages={this.state.messages}
-            //                     />
-            //                 </Flex>
-            //             </Flex>
-            //         </Flex>
-            //     </Box>
-            // </React.Fragment >
-        )
+                    {/* Chat window on the right */}
+                    <div className="chat-section">
+                        <ChatWindow
+                            messages={this.state.messages}
+                            currentUser={this.state.currentUser}
+                        />
+                        <MessageInput sendMessage={this.handleSendMessage} />
+                    </div>
+                </div>
+
+               
+            </div>
+        );
     }
 }
 
-export default Home;
-
+// Export the component with navigation
+export default withNavigation(Home);

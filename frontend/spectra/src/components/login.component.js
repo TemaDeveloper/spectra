@@ -49,6 +49,19 @@ class Login extends Component {
         }
     };
 
+    componentDidMount() {
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', this.handleBackButton);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('popstate', this.handleBackButton);
+    }
+
+    handleBackButton = (event) => {
+        window.history.pushState(null, null, window.location.href);
+    };
+
     // Handle username input with validation
     handleUsernameChange = (event) => {
         const value = event.target.value;
