@@ -3,14 +3,14 @@ import ChatHeader from '../min-components/header.js';
 import UsersList from '../min-components/userList.js';
 import ChatWindow from '../min-components/chatWindowComponent.js';
 import MessageInput from '../min-components/inputBox.js';
-import withNavigation from './with_nav.component'; // Assuming you're using this for navigation
+import withNavigation from './with_nav.component'; 
 
 class Home extends Component {
     state = {
         users: [
             { id: 1, name: 'User1' },
             { id: 2, name: 'User2' },
-            { id: 3, name: 'User3' },
+            { id: 3, name: 'Spectra Main' },
         ],
         messages: [],
         currentUser: 'User1', // This would be the logged-in user
@@ -73,6 +73,9 @@ class Home extends Component {
                         users={this.state.users}
                         selectUser={(user) => this.setState({ currentUser: user.name })}
                     />
+
+                     {/* Vertical line separator */}
+                    <div className="separator"></div>
 
                     {/* Chat window on the right */}
                     <div className="chat-section">

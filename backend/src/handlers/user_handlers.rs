@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use crate::auth::jwt::issue_jwt;
 use crate::redis_manager::session_manager::{delete_session_id, get_session_id_value};
 use crate::{
@@ -9,7 +7,6 @@ use crate::{
 use ::entity::user;
 use axum::{
     body::Body,
-    extract::Path,
     http::{
         header::{self},
         Response, StatusCode,
@@ -18,7 +15,6 @@ use axum::{
     Extension, Json,
 };
 use axum_extra::{headers, TypedHeader};
-use entity::user::Column;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use tower_cookies::cookie::time::Duration;
 use tower_cookies::{cookie::SameSite, Cookie, Cookies};
