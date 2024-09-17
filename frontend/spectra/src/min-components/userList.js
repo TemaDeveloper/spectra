@@ -17,7 +17,7 @@ const UsersList = ({ users, selectUser }) => {
 
     return (
         <div className={`users-list-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
-            {/* Toggle Button */}
+            {/* Toggle Button */} 
             <div className="toggle-button" onClick={toggleUserList}>
                 <FaBars />
             </div>

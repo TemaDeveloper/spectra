@@ -7,6 +7,7 @@ mod auth;
 mod middlewares;
 mod redis_manager;
 
+//TODO: Change to Web Sockets
 pub async fn run(db : DatabaseConnection){
 
     let app = routes::create_all_routes(db);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 
-const ChatHeader = ({ userName, handleLogout }) => {
+const ChatHeader = ({ userName, handleLogout, recipient }) => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
     const toggleDropdown = () => {
@@ -12,7 +12,7 @@ const ChatHeader = ({ userName, handleLogout }) => {
     return (
         <header className="chat-header">
             <img src="spectra_dark_logo.png" alt="Chat Logo" className="chat-logo" />
-            <h2>Spectra</h2>
+            <h2>{recipient}</h2>
             <div className="user-section">
                 {/* User box with animated FontAwesome icon */}
                 <div className={`user-box ${isDropdownVisible ? 'active' : ''}`} onClick={toggleDropdown}>

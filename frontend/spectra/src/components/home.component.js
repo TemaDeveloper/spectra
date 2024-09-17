@@ -13,11 +13,13 @@ class Home extends Component {
             { id: 3, name: 'Spectra Main' },
         ],
         messages: [],
+        recipient: 'User2',
         currentUser: 'User1', // This would be the logged-in user
     };
 
     handleSendMessage = (text) => {
         const newMessage = {
+            recipient: this.state.recipient,
             sender: this.state.currentUser,
             text: text,
             time: new Date().toISOString(),
@@ -65,13 +67,13 @@ class Home extends Component {
         return (
             <div className="home-container">
                 {/* Header now includes username and logout functionality */}
-                <ChatHeader userName={this.state.currentUser} handleLogout={this.handleLogout} />
+                <ChatHeader userName={this.state.currentUser} handleLogout={this.handleLogout} recipient={this.state.recipient} />
 
                 <div className="home-content">
                     {/* List of users on the left */}
                     <UsersList
                         users={this.state.users}
-                        selectUser={(user) => this.setState({ currentUser: user.name })}
+                        selectUser={(user) => this.setState({ recipient: user.name })}
                     />
 
                      {/* Vertical line separator */}
@@ -81,7 +83,7 @@ class Home extends Component {
                     <div className="chat-section">
                         <ChatWindow
                             messages={this.state.messages}
-                            currentUser={this.state.currentUser}
+                            recipient={this.state.recipient}
                         />
                         <MessageInput sendMessage={this.handleSendMessage} />
                     </div>

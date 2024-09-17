@@ -334,38 +334,88 @@ html, body, #root {
   overflow-y: auto; /* Allows chat messages to scroll independently */
   display: flex;
   flex-direction: column;
+}/* Chat window overall style */
+
+
+/* Sent message container */
+.message-sent-container {
+  display: flex;
+  justify-content: flex-end; /* Align messages to the right */
+  margin-bottom: 15px;
+  width: 100%;
+  align-items: flex-start;
+  position: relative;
+  flex-direction: row-reverse; /* Place avatar on the right side */
 }
 
-/* Sent message styling */
-.sent-message {
-  align-self: flex-end;
-  background-color: #d3d3d3;
-  padding: 10px;
-  text-align: right;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  max-width: 60%;
+/* Received message container */
+.message-received-container {
+  display: flex;
+  justify-content: flex-start; /* Align messages to the left */
+  margin-bottom: 15px;
+  width: 100%;
+  align-items: flex-start;
 }
 
-/* Received message styling */
-.received-message {
-  align-self: flex-start;
+/* Avatar styling */
+.message-avatar {
+  width: 40px;
+  height: 40px;
   background-color: #333;
   color: #fff;
-  padding: 10px;
-  text-align: left;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  max-width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
-/* Timestamp styling for messages */
-.time-stamp {
+/* Adjust margins for avatars */
+.message-sent-container .message-avatar {
+  margin-left: 10px; /* Avatar on the right side for sent messages */
+  margin-right: 0;
+}
+
+.message-received-container .message-avatar {
+  margin-right: 10px; /* Avatar on the left side for received messages */
+  margin-left: 0;
+}
+
+/* Message bubble styling */
+.message-bubble {
+  max-width: 60%;
+  padding: 10px;
+  border-radius: 10px;
+  position: relative;
+}
+
+/* Sent message bubble */
+.sent-message {
+  background-color: #d3d3d3;
+  text-align: right;
+  align-self: flex-end;
+  margin-left: auto; /* Align bubble to the right side */
+}
+
+/* Received message bubble */
+.received-message {
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  align-self: flex-start;
+  margin-right: auto; /* Align bubble to the left side */
+}
+
+/* Timestamp styling */
+.timestamp {
   font-size: 0.75rem;
   margin-top: 5px;
   display: block;
   text-align: right;
+  color: #888;
 }
+
 
 /* Message input area styling */
 .message-input-container {
@@ -386,16 +436,17 @@ html, body, #root {
   border: 1px solid #ccc;
   border-radius: 10px;
   overflow-y: hidden;
-  resize: none; /* Disable manual resizing */
-  overflow-y: auto; /* Allow scrolling when the max height is reached */
+  resize: none;
+  overflow-y: auto;
   min-height: 40px;
-  max-height: 250px; /* Max height for textarea expansion */
+  max-height: 250px;
   line-height: 1.5;
   margin-right: 10px;
   outline: none;
   box-shadow: none;
   transition: height 0.2s ease;
 }
+
 
 .send-button {
   background-color: #333;
