@@ -307,7 +307,7 @@ html, body, #root {
 
 /* Active user styling */
 .user-item.active {
-  background-color: #007bff;
+  background-color: #b5b9bc; /* Highlight color for the selected user */
   color: #fff;
 }
 
