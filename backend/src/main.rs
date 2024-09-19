@@ -4,16 +4,16 @@ use dotenv::dotenv;
 use backend::run;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> anyhow::Result<(), Box<dyn std::error::Error>> {
 
      //init dotenv
      dotenv().ok();
      let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
      let db_conn = Database::connect(&db_url).await?;
  
-      run(db_conn).await;
+      run(db_conn).await
   
-      Ok(())
+     // Ok(())
  
 
 }
