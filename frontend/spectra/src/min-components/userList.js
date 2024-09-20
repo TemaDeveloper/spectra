@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { FaBars } from 'react-icons/fa'; // For toggle icons
 
-const UsersList = ({ users, selectUser }) => {
+const UsersList = ({ rooms, selectRoom, currentRoom }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isExpanded, setIsExpanded] = useState(true);
-    const [selectedUserId, setSelectedUserId] = useState(null); // Track selected user
+    const [selectedRoomId, setSelectedRoomId] = useState(null); // Track selected user
 
     // Filter users based on the search term
-    const filteredUsers = users.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredUsers = rooms.filter(room =>
+        room.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const toggleUserList = () => {
         setIsExpanded(!isExpanded);
     };
 
-    const handleUserClick = (user) => {
-        setSelectedUserId(user.id); // Set selected user
-        selectUser(user); // Trigger the selectUser function
+    const handleUserClick = (room) => {
+        setSelectedRoomId(room.id); // Set selected user
+        selectRoom(room); // Trigger the selectUser function, which will update the current room
     };
 
     return (
@@ -32,24 +32,24 @@ const UsersList = ({ users, selectUser }) => {
                 <div className="user-list-content">
                     <input
                         type="text"
-                        placeholder="Find a user..."
+                        placeholder="Find a room..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="search-input"
                     />
 
                     <ul className="users">
-                        {filteredUsers.map((user) => (
+                        {filteredUsers.map((room) => (
                             <li 
-                                key={user.id} 
-                                className={`user-item ${selectedUserId === user.id ? 'active' : ''}`} // Add 'active' class for selected user
-                                onClick={() => handleUserClick(user)}
+                                key={room.id} 
+                                className={`user-item ${(currentRoom === room.id && selectedRoomId === room.id) ? 'active' : ''}`} // Add 'active' class for selected user
+                                onClick={() => handleUserClick(room)}
                             >
                                 <div className="user-avatar">
-                                    <span>{user.name[0]}</span> {/* First letter of user's name */}
+                                    <span>{room.name[0]}</span> {/* First letter of user's name */}
                                 </div>
                                 <div className="user-name">
-                                    {user.name}
+                                    {room.name}
                                 </div>
                             </li>
                         ))}

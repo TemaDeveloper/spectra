@@ -137,7 +137,7 @@ pub async fn login(
 
     let mut cookie = Cookie::new("bearer_id", bearer_id.to_string());
     cookie.set_http_only(true);
-    cookie.set_secure(true); //TODO: When I will use HTTPS turn on again
+    cookie.set_secure(false); //TODO: When I will use HTTPS turn on again
     cookie.set_path("/");
     cookie.set_max_age(Duration::hours(24));
     cookie.set_same_site(SameSite::None);

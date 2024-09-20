@@ -5,6 +5,7 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 const MessageInput = ({ sendMessage }) => {
     const [message, setMessage] = useState('');
     const textareaRef = useRef(null);
+
     const handleInputChange = (e) => {
         setMessage(e.target.value);
         const textarea = textareaRef.current;
@@ -15,9 +16,9 @@ const MessageInput = ({ sendMessage }) => {
     const handleSend = (event) => {
         event.preventDefault();
         if (message.trim()) {
-            sendMessage(message);
-            setMessage('');
-            textareaRef.current.style.height = 'auto';
+            sendMessage(message);  // Pass the message to the sendMessage function in Home.js
+            setMessage('');  // Clear the input field after sending
+            textareaRef.current.style.height = 'auto';  // Reset the textarea height
         }
     };
 
@@ -29,7 +30,7 @@ const MessageInput = ({ sendMessage }) => {
                 onChange={handleInputChange}
                 placeholder="Type a message..."
                 className="message-input"
-                rows='1'
+                rows="1"
             />
             <button type="submit" className="send-button">
                 <FontAwesomeIcon icon={faPaperPlane} />
@@ -37,7 +38,5 @@ const MessageInput = ({ sendMessage }) => {
         </form>
     );
 };
-
-
 
 export default MessageInput;
