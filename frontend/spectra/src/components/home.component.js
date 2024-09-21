@@ -32,7 +32,7 @@ class Home extends Component {
         //const userId = this.props.userId;
 
         try {
-            const response = await fetch('http://10.10.9.136:9090/user/logout', {
+            const response = await fetch('http://127.0.0.1:3001/user/logout', {
                 method: 'POST',
                 credentials: 'include',
             });

@@ -6,18 +6,18 @@ const ChatWindow = ({ messages, recipient }) => {
             {messages.map((message, index) => (
                 <div
                     key={index}
-                    className={message.sender === recipient ? 'message-received-container' : 'message-sent-container'}
+                    className={message.user_id === recipient ? 'message-received-container' : 'message-sent-container'}
                 >
                     {/* Avatar for the message */}
                     <div className="message-avatar">
-                        <span>{message.sender[0]}</span>
+                        <span>{message.user_id[0]}</span>
                     </div>
 
                     {/* Message bubble */}
-                    <div className={`message-bubble ${message.sender === recipient ? 'received-message' : 'sent-message'}`}>
-                        <p>{message.text}</p>
+                    <div className={`message-bubble ${message.user_id === recipient ? 'received-message' : 'sent-message'}`}>
+                        <p>{message.content}</p>
                         <span className="timestamp">
-                            {new Date(message.time).toLocaleTimeString()}
+                            {new Date(message.date).toLocaleTimeString()}
                         </span>
                     </div>
                 </div>

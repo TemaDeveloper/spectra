@@ -37,7 +37,7 @@ function App() {
     console.log("Attempting to establish WebSocket connection...");
 
     // Make the auth request as before
-    fetch('http://10.10.9.136:9090/message/check-auth', {
+    fetch('http://127.0.0.1:3001/message/check-auth', {
       method: 'GET',
       credentials: 'include',
     })
@@ -64,7 +64,7 @@ function App() {
       });
 
       //socketConnection init
-      const socketConnection = io('ws://10.10.9.136:9090', {
+      const socketConnection = io('ws://127.0.0.1:3001', {
         transports: ['websocket'], // Force WebSocket connection (in case it's using polling)
         withCredentials: true 
       });
@@ -72,19 +72,19 @@ function App() {
       //setsocketConnection(socketConnection);
       socketRef.current = socketConnection;
 
-      socketConnection.on("connect", () => {
+      socketRef.current.on("connect", () => {
         console.log("Connected to socketConnection server");
         console.log("joining room", currentRoom);
-        socketConnection.emit("join", currentRoom);
+        socketRef.current.emit("join", currentRoom);
       });
 
-      socketConnection.on("message", (msg) => {
+      socketRef.current.on("message", (msg) => {
         console.log("Message received", msg);
-        msg.date = new Date(msg.date);
-        setMessages((messages) => [...messages, msg]);
+        msg.date = new Date(msg.date.split('.')[0] + 'Z');
+        setMessages((prevMessages) => [...prevMessages, msg]);
       });
-  
-      socketConnection.on("messages", (msgs) => {
+    
+      socketRef.current.on("messages", (msgs) => {
         console.log("Messages received", msgs);
         let parsedMessages = msgs.messages.map((msg) => {
           msg.date = new Date(msg.date);
@@ -93,13 +93,13 @@ function App() {
         setMessages(parsedMessages);
       });
 
-      socketConnection.on("connect_error", (err) => {
+      socketRef.current.on("connect_error", (err) => {
         console.error("Connection error:", err);
       });
 
       return () => {
-        if (socketConnection.readyState === 1) { // <-- This is important
-          socketConnection.close();
+        if (socketRef.current.readyState === 1) { // the state has to be ready to be closed 
+          socketRef.current.close();
       }
         //socketConnection.disconnect();
       };
@@ -108,18 +108,17 @@ function App() {
 
   const sendMessage = (messageText) => {
     const newMessage = {
-      text: messageText.trim(),
+      content: messageText.trim(),
       room: currentRoom,
-      sender: userId,
+      user_id: userId,
       time: new Date().toISOString(),
     };
 
-    if (socketRef.current) {
-      console.log(`Sending message to room: ${currentRoom}`);
-      socketRef.current.emit('message', newMessage);  // Emit the message via WebSocket
 
-      // Update the local messages state
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    //TODO: Check why messages are not recieving by backend
+    if (socketRef.current) {
+      console.log(`Sending message to room: ${currentRoom}`); 
+      socketRef.current.emit("message", newMessage); 
     }
   };
 

@@ -26,8 +26,7 @@ pub struct MessagePosting {
 #[derive(Deserialize, Debug)]
 pub struct MessageIn{
     pub room: String, 
-    pub content: String ,
-    pub user_id: String,
+    pub content: String,
 }
 
 #[derive(Serialize)]

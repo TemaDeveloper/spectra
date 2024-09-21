@@ -29,13 +29,15 @@ async fn on_connect(socket: SocketRef){
     });
 
     socket.on("message", |socket: SocketRef, Data::<MessageIn>(data)|{
-        info!("Recieved message: {:?}", data);
+        info!("Received message in room: {} with content: {}", data.room, data.content);
+
         let response = MessageOut {
             content: data.content,
-            user_id: data.user_id,
+            user_id: socket.id.to_string(),
             date: chrono::Utc::now(), 
         };
-        let _ = socket.within(data.room).emit("message", response);
+        let _ = socket.within(data.room.clone()).emit("message", response);
+        info!("Message was sent to room {:?}", data.room);
     });
 
 }
@@ -49,9 +51,8 @@ pub async fn run(db : DatabaseConnection) -> Result<(), Box<dyn std::error::Erro
 
     let app = routes::create_all_routes(db, ws_layer);
 
-    let listener: TcpListener = TcpListener::bind("10.10.9.136:9090")
-        .await
-        .unwrap();
+    let listener: TcpListener = TcpListener::bind("127.0.0.1:3001")
+        .await?;
 
     axum::serve(listener, app)
         .await
