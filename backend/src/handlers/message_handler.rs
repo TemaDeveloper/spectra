@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{http::StatusCode, response::IntoResponse, Extension, Json};
 use entity::message;
 use sea_orm::{DatabaseConnection, EntityTrait, Set};
@@ -15,7 +17,9 @@ pub async fn get_all_messages(
             Json(AllMessagesRecieving {
                 messages : res.iter().map(|m| MessageRecieving {
                     content: m.conent.to_string(),
-                    name: m.name.to_string(),
+                    sender_id: m.sender_id.to_string(),
+                    room: m.room.to_string(),
+                    sending_time: m.sending_time.to_string(),
                 }).collect()
             }),
         ),
@@ -25,19 +29,21 @@ pub async fn get_all_messages(
 }   
 
 pub async fn send_message(
-    Extension(db) : Extension<DatabaseConnection>,
+    db : Arc<DatabaseConnection>,
     message_data : Json<MessagePosting>
 ) -> impl IntoResponse{
-
+    //TODO: Change the model at ActiveModel in postgres. 
+    //TODO: Set the message as it is at room, also take a look at the MessageIn and MessageOut Models.
     let new_message = message::ActiveModel{
-        name: Set(message_data.name.to_string()),
+        room: Set(message_data.room.to_string()),
         conent: Set(message_data.content.to_string()),
-        user_id: Set(message_data.user_id),
+        sender_id: Set(message_data.user_id.to_string()),
+        sending_time: Set(message_data.sending_time.to_string()),
         ..Default::default()
     };
 
     message::Entity::insert(new_message)
-        .exec(&db)
+        .exec(db.as_ref())
         .await
         .unwrap();
 

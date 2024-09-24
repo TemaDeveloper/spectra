@@ -1,20 +1,28 @@
-use models::message_model::{MessageIn, MessageOut};
+use std::sync::Arc;
+
+use axum::Extension;
+use handlers::message_handler::send_message;
+use models::message_model::{MessageIn, MessageOut, MessagePosting};
 use sea_orm::DatabaseConnection;
 use serde_json::Value;
-use socketioxide::{extract::{Data, SocketRef}, layer::SocketIoLayer, SocketIo};
+use socketioxide::{
+    extract::{Data, SocketRef},
+    layer::SocketIoLayer,
+    SocketIo,
+};
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 use tracing::info;
 use tracing_subscriber::FmtSubscriber;
-mod routes;
-mod handlers;
-mod models;
 mod auth;
+mod handlers;
 mod middlewares;
+mod models;
 mod redis_manager;
+mod routes;
 
-async fn on_connect(socket: SocketRef){
+async fn on_connect(socket: SocketRef, db: Arc<DatabaseConnection>) {
     info!("socket connected: {}", socket.id);
 
     socket.on("join", |socket: SocketRef, Data::<String>(room)| {
@@ -28,36 +36,49 @@ async fn on_connect(socket: SocketRef){
         }
     });
 
-    socket.on("message", |socket: SocketRef, Data::<MessageIn>(data)|{
-        info!("Received message in room: {} with content: {}", data.room, data.content);
+    socket.on("message", |socket: SocketRef, Data::<MessageIn>(data)| {
+        info!(
+            "Received message in room: {} with content: {}",
+            data.room, data.content
+        );
 
         let response = MessageOut {
-            content: data.content,
+            content: data.content.clone(),
             user_id: socket.id.to_string(),
-            date: chrono::Utc::now(), 
+            date: chrono::Utc::now(),
         };
-        let _ = socket.within(data.room.clone()).emit("message", response);
-        info!("Message was sent to room {:?}", data.room);
-    });
+        let _ = socket.within(data.room.clone()).emit("message", response.clone());
 
+        tokio::spawn(async move {
+            send_message(
+                db,
+                axum::Json(MessagePosting {
+                    content: data.content.to_string(),
+                    user_id: socket.id.to_string(),
+                    room: data.room.to_string(),
+                    sending_time: response.date.to_string(),
+                }),
+            )
+            .await;
+        });
+//        info!("Message was sent to room {:?}", data.room);
+    });
 }
 
-pub async fn run(db : DatabaseConnection) -> Result<(), Box<dyn std::error::Error>>{
+pub async fn run(db: DatabaseConnection) -> Result<(), Box<dyn std::error::Error>> {
+    let db = Arc::new(db);
 
     tracing::subscriber::set_global_default(FmtSubscriber::default())?;
 
     let (ws_layer, io) = SocketIo::new_layer();
-    io.ns("/", on_connect);
+    let db_for_socket = Arc::clone(&db);
 
-    let app = routes::create_all_routes(db, ws_layer);
-
-    let listener: TcpListener = TcpListener::bind("127.0.0.1:3001")
-        .await?;
-
-    axum::serve(listener, app)
-        .await
-        .unwrap();
+    io.ns("/", move |socket| on_connect(socket, db_for_socket.clone()));
+    
+    //retrive all messages via HTTP
+    let app = routes::create_all_routes(Arc::clone(&db), ws_layer);
+    let listener: TcpListener = TcpListener::bind("127.0.0.1:3001").await?;
+    axum::serve(listener, app).await.unwrap();
 
     Ok(())
-
 }

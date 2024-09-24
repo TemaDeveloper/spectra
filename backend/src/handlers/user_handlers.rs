@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::auth::jwt::issue_jwt;
 use crate::redis_manager::session_manager::{delete_session_id, get_session_id_value};
 use crate::{
@@ -22,7 +24,7 @@ use uuid::Uuid;
 
 pub async fn insert_user(
     cookies: Cookies,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<Arc<DatabaseConnection>>,
     user_data: Json<CreateUser>,
 ) -> impl IntoResponse {
     let bearer_id = Uuid::new_v4();
@@ -35,7 +37,7 @@ pub async fn insert_user(
         role: Set("User".to_string()),
     };
 
-    user::Entity::insert(new_user).exec(&db).await.unwrap();
+    user::Entity::insert(new_user).exec(db.as_ref()).await.unwrap();
 
     match issue_jwt(user_id.to_string(), "User".to_string()) {
         Ok(token) => {
@@ -69,7 +71,7 @@ pub async fn insert_user(
 
 pub async fn login(
     cookies: Cookies,
-    Extension(db): Extension<DatabaseConnection>,
+    Extension(db): Extension<Arc<DatabaseConnection>>,
     user_data: Json<LoginPayload>,
 ) -> impl IntoResponse {
     let bearer_id = Uuid::new_v4();
@@ -90,7 +92,7 @@ pub async fn login(
                 .add(user::Column::Password.eq(credentials.1)) // Password
                 .add(user::Column::Username.eq(credentials.0)), // Username
         )
-        .one(&db)
+        .one(db.as_ref())
         .await;
 
     // Handle database query result

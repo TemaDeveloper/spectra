@@ -37,7 +37,7 @@ function App() {
     console.log("Attempting to establish WebSocket connection...");
 
     // Make the auth request as before
-    fetch('http://127.0.0.1:3001/message/check-auth', {
+    fetch('http://127.0.0.1:3001/', {
       method: 'GET',
       credentials: 'include',
     })

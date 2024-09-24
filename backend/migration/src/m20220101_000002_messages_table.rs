@@ -19,15 +19,16 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Message::Name).string().not_null())
+                    .col(ColumnDef::new(Message::Room).string().not_null())
                     .col(ColumnDef::new(Message::Conent).string().not_null())
-                    .col(ColumnDef::new(Message::UserId).uuid().not_null())
-                        .foreign_key(
-                            ForeignKey::create()
-                                .name("fk-message-user_id")
-                                .from(Message::Table, Message::UserId)
-                                .to(User::Table, User::Id)
-                        )
+                    .col(ColumnDef::new(Message::SendingTime).string().not_null())
+                    .col(ColumnDef::new(Message::SenderId).string().not_null())
+                        // .foreign_key(
+                        //     ForeignKey::create()
+                        //         .name("fk-message-user_id")
+                        //         .from(Message::Table, Message::SenderId)
+                        //         .to(User::Table, User::Id)
+                        // )
                     .to_owned(),
             )
             .await
@@ -45,9 +46,10 @@ impl MigrationTrait for Migration {
 enum Message {
     Table,
     Id,
-    UserId,
-    Name,
+    SenderId,
     Conent,
+    Room, 
+    SendingTime
 }
 
 #[derive(Iden)]
