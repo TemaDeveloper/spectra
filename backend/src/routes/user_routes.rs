@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{routing::{get, post}, Extension, Router};
+use axum::{routing::post, Extension, Router};
 use sea_orm::DatabaseConnection;
 use crate::handlers::user_handlers::{insert_user, login, logout};
 

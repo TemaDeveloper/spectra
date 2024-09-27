@@ -7,17 +7,39 @@ import withNavigation from './with_nav.component';
 
 class Home extends Component {
 
+    state = {
+        rooms: [], 
+    };
+
     selectRoom = (room) => {
         const { socket, currentRoom, setCurrentRoom } = this.props;
 
-        if (currentRoom !== room.name) {
+        if (currentRoom !== room.room_name) {
             socket.emit('leave', currentRoom);
-            socket.emit('join', room.name);
-            setCurrentRoom(room.name);  // Update room in App.js
+            socket.emit('join', room.room_name);
+            setCurrentRoom(room.room_name);  // Update room in App.js
         }
     };
 
-    componentDidMount() {
+    async componentDidMount() {
+
+        try {
+            const response = await fetch('http://127.0.0.1:3001/room/get-rooms', {
+                method: 'GET',
+                credentials: 'include',  // Include credentials if your API requires authentication
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const rooms = data.rooms || [];  // Extract the rooms array
+                this.setState({ rooms });  // Store the fetched rooms in state
+            } else {
+                console.error('Failed to fetch rooms:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching rooms:', error);
+        }
+
         // You don't need to handle socket logic here, just handle back button prevention
         window.history.pushState(null, null, window.location.href);
         window.addEventListener('popstate', this.handleBackButton);
@@ -38,10 +60,11 @@ class Home extends Component {
             });
 
             if (response.ok) {
-                console.log('Successfully logged out');
-                this.props.navigate('/sign-in', { replace: true });  // Navigate to login page
+                const data = await response.json();
+                const rooms = data.rooms || [];  // Extract the rooms array
+                this.setState({ rooms }); 
             } else {
-                console.error('Failed to log out:', response.status, response.statusText);
+                console.error('Failed to fetch rooms:', response.status, response.statusText);
             }
         } catch (error) {
             console.error('Error during fetch:', error);
@@ -54,6 +77,7 @@ class Home extends Component {
 
     render() {
         const { currentRoom, messages, sendMessage } = this.props;       
+        const { rooms } = this.state;
         return (
             <div className="home-container">
                 {/* Header now includes username and logout functionality */}
@@ -63,11 +87,8 @@ class Home extends Component {
                     {/* List of users (rooms) on the left */}
                     <UsersList
                         currentRoom={currentRoom}
-                        rooms={[
-                            { id: 1, name: 'User1' },
-                            { id: 2, name: 'User2' },
-                            { id: 3, name: 'Spectra Main' },
-                        ]}
+                        //TODO: Add the logic of creating new rooms (has the id and Naming senders)
+                        rooms={rooms}
                         selectRoom={this.selectRoom}  // Change the room when a user is selected
                     />
 

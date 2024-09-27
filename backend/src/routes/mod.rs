@@ -17,6 +17,7 @@ use crate::handlers::user_handlers::check_auth;
 
 pub mod user_routes;
 pub mod message_routes;
+pub mod room_routes;
 
 pub fn create_all_routes(db : Arc<DatabaseConnection>, ws_layer : SocketIoLayer) -> Router{
 
@@ -28,7 +29,8 @@ pub fn create_all_routes(db : Arc<DatabaseConnection>, ws_layer : SocketIoLayer)
 
     Router::new()
         .nest("/user", user_routes::create_user_routes(db.clone()))
-        .nest("/message", message_routes::create_message_routes(db))
+        .nest("/message", message_routes::create_message_routes(db.clone()))
+        .nest("/room", room_routes::create_rooms_routes(db))
         .route("/", get(check_auth))
         .layer(CookieManagerLayer::new())
         .layer(ServiceBuilder::new().layer(CorsLayer::very_permissive()))  // Add CORS for HTTP requests

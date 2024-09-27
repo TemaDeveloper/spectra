@@ -1,18 +1,12 @@
 use std::sync::Arc;
-
-use axum::Extension;
 use handlers::message_handler::send_message;
 use models::message_model::{MessageIn, MessageOut, MessagePosting};
 use sea_orm::DatabaseConnection;
-use serde_json::Value;
 use socketioxide::{
     extract::{Data, SocketRef},
-    layer::SocketIoLayer,
     SocketIo,
 };
 use tokio::net::TcpListener;
-use tower::ServiceBuilder;
-use tower_http::cors::CorsLayer;
 use tracing::info;
 use tracing_subscriber::FmtSubscriber;
 mod auth;
@@ -44,7 +38,7 @@ async fn on_connect(socket: SocketRef, db: Arc<DatabaseConnection>) {
 
         let response = MessageOut {
             content: data.content.clone(),
-            user_id: socket.id.to_string(),
+            user_id: data.user_id, //TODO: change from socket.id to Uuid
             date: chrono::Utc::now(),
         };
         let _ = socket.within(data.room.clone()).emit("message", response.clone());
@@ -54,7 +48,7 @@ async fn on_connect(socket: SocketRef, db: Arc<DatabaseConnection>) {
                 db,
                 axum::Json(MessagePosting {
                     content: data.content.to_string(),
-                    user_id: socket.id.to_string(),
+                    user_id: data.user_id, //TODO: Change the user_id to actual id of a user
                     room: data.room.to_string(),
                     sending_time: response.date.to_string(),
                 }),

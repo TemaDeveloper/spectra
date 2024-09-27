@@ -4,21 +4,31 @@ import { FaBars } from 'react-icons/fa'; // For toggle icons
 const UsersList = ({ rooms, selectRoom, currentRoom }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isExpanded, setIsExpanded] = useState(true);
-    const [selectedRoomId, setSelectedRoomId] = useState(null); // Track selected user
+    const [selectedRoomId, setSelectedRoomId] = useState(null); // Track selected room
 
-    // Filter users based on the search term
-    const filteredUsers = rooms.filter(room =>
-        room.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filterRooms = (rooms, searchTerm) => {
+        // Ensure rooms is an array before filtering
+        if (!Array.isArray(rooms)) {
+            console.error('Rooms is not an array:', rooms);
+            return [];
+        }
+
+        return rooms.filter(room =>
+            room.room_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    };
 
     const toggleUserList = () => {
         setIsExpanded(!isExpanded);
     };
 
     const handleUserClick = (room) => {
-        setSelectedRoomId(room.id); // Set selected user
-        selectRoom(room); // Trigger the selectUser function, which will update the current room
+        setSelectedRoomId(room.room_id); // Set selected room ID
+        selectRoom(room); // Trigger the selectRoom function, which will update the current room
     };
+
+    // Filter the rooms based on the search term
+    const filteredRooms = filterRooms(rooms, searchTerm);
 
     return (
         <div className={`users-list-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
@@ -27,7 +37,7 @@ const UsersList = ({ rooms, selectRoom, currentRoom }) => {
                 <FaBars />
             </div>
 
-            {/* Search input and user list only visible if expanded */}
+            {/* Search input and room list only visible if expanded */}
             {isExpanded && (
                 <div className="user-list-content">
                     <input
@@ -39,17 +49,17 @@ const UsersList = ({ rooms, selectRoom, currentRoom }) => {
                     />
 
                     <ul className="users">
-                        {filteredUsers.map((room) => (
+                        {filteredRooms.map((room) => (
                             <li 
-                                key={room.id} 
-                                className={`user-item ${(currentRoom === room.id && selectedRoomId === room.id) ? 'active' : ''}`} // Add 'active' class for selected user
+                                key={room.room_id} 
+                                className={`user-item ${(currentRoom === room.room_name && selectedRoomId === room.room_id) ? 'active' : ''}`} // Add 'active' class for selected room
                                 onClick={() => handleUserClick(room)}
                             >
                                 <div className="user-avatar">
-                                    <span>{room.name[0]}</span> {/* First letter of user's name */}
+                                    <span>{room.room_name[0]}</span> {/* First letter of room's name */}
                                 </div>
                                 <div className="user-name">
-                                    {room.name}
+                                    {room.room_name}
                                 </div>
                             </li>
                         ))}

@@ -14,7 +14,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [socket, setsocketConnection] = useState(null);
   const [connected, setConnected] = useState(false);
-  const [currentRoom, setCurrentRoom] = useState("Spectra Main");
+  const [currentRoom, setCurrentRoom] = useState("Home");
   const [messages, setMessages] = useState([]);
   //const onceRef = useRef(false);
   const socketRef = useRef(null);
@@ -114,8 +114,6 @@ function App() {
       time: new Date().toISOString(),
     };
 
-
-    //TODO: Check why messages are not recieving by backend
     if (socketRef.current) {
       console.log(`Sending message to room: ${currentRoom}`); 
       socketRef.current.emit("message", newMessage); 
