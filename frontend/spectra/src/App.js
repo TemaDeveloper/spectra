@@ -16,7 +16,6 @@ function App() {
   const [connected, setConnected] = useState(false);
   const [currentRoom, setCurrentRoom] = useState("Home");
   const [messages, setMessages] = useState([]);
-  //const onceRef = useRef(false);
   const socketRef = useRef(null);
 
   useEffect(() => {

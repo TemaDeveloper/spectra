@@ -9,6 +9,7 @@ class Home extends Component {
 
     state = {
         rooms: [], 
+        userName: '',
     };
 
     selectRoom = (room) => {
@@ -22,19 +23,30 @@ class Home extends Component {
     };
 
     async componentDidMount() {
-
+        const userId = this.props.userId;
         try {
-            const response = await fetch('http://127.0.0.1:3001/room/get-rooms', {
-                method: 'GET',
-                credentials: 'include',  // Include credentials if your API requires authentication
-            });
+            const [roomsResponse, userNameResponse] = await Promise.all([
+                fetch('http://127.0.0.1:3001/room/get-rooms', {
+                    method: 'GET',
+                    credentials: 'include',  // Include credentials if your API requires authentication
+                }),
+                fetch(`http://127.0.0.1:3001/user/get-user-name/${userId}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                })
+            ]);
 
-            if (response.ok) {
-                const data = await response.json();
-                const rooms = data.rooms || [];  // Extract the rooms array
-                this.setState({ rooms });  // Store the fetched rooms in state
+            // Process the responses
+            if (roomsResponse.ok && userNameResponse.ok) {
+                const roomsData = await roomsResponse.json();
+                const userNameData = await userNameResponse.json();
+
+                this.setState({
+                    rooms: roomsData.rooms || [],  // Set rooms in state
+                    userName: userNameData.user_name || '',  // Set user name in state
+                });
             } else {
-                console.error('Failed to fetch rooms:', response.status, response.statusText);
+                console.error('Failed to fetch rooms or user name');
             }
         } catch (error) {
             console.error('Error fetching rooms:', error);
@@ -51,7 +63,6 @@ class Home extends Component {
     }
 
     handleLogout = async () => {
-        //const userId = this.props.userId;
 
         try {
             const response = await fetch('http://127.0.0.1:3001/user/logout', {
@@ -77,17 +88,16 @@ class Home extends Component {
 
     render() {
         const { currentRoom, messages, sendMessage } = this.props;       
-        const { rooms } = this.state;
+        const { rooms, userName } = this.state;
         return (
             <div className="home-container">
                 {/* Header now includes username and logout functionality */}
-                <ChatHeader userName={this.props.userId} handleLogout={this.handleLogout} recipient={currentRoom} />
+                <ChatHeader userName={userName} handleLogout={this.handleLogout} recipient={currentRoom} />
 
                 <div className="home-content">
                     {/* List of users (rooms) on the left */}
                     <UsersList
                         currentRoom={currentRoom}
-                        //TODO: Add the logic of creating new rooms (has the id and Naming senders)
                         rooms={rooms}
                         selectRoom={this.selectRoom}  // Change the room when a user is selected
                     />
@@ -98,6 +108,7 @@ class Home extends Component {
                     {/* Chat window on the right */}
                     <div className="chat-section">
                         <ChatWindow
+                            username = {userName}
                             messages={messages}
                             recipient={currentRoom}
                         />

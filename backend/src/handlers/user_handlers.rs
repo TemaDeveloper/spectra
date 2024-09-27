@@ -6,6 +6,7 @@ use crate::{
     models::user_models::{decode_credentials, CreateUser, LoginPayload},
     redis_manager::session_manager::set_session_id,
 };
+use axum::extract::Path;
 use ::entity::user;
 use axum::{
     body::Body,
@@ -193,6 +194,31 @@ pub async fn logout(
     }else{
         (StatusCode::INTERNAL_SERVER_ERROR, Body::from("Cannot find cookies".to_string()))
     }
+}
+
+pub async fn get_user_name(
+    Path(id) : Path<Uuid>,
+    Extension(db): Extension<Arc<DatabaseConnection>>
+) -> impl IntoResponse {
+
+    let username = user::Entity::find()
+        .filter(user::Column::Id.eq(id))
+        .one(db.as_ref())
+        .await;
+
+    match username {
+        Ok(Some(user)) => {
+            let response = serde_json::json!({ "user_name": user.username }); // Assuming the field is `username`
+            (StatusCode::OK, Json(response))
+        }
+        Ok(None) => {
+            (StatusCode::NOT_FOUND, Json(serde_json::json!({"error": "User not found"})))
+        }
+        Err(_) => {
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({"error": "Internal server error"})))
+        }
+    }
+
 }
 
 pub async fn check_auth(cookies: Cookies) -> impl IntoResponse {

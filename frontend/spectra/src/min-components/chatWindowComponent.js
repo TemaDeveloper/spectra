@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ChatWindow = ({ messages, recipient }) => {
+const ChatWindow = ({ messages, recipient, username }) => {
     return (
         <div className="chat-window">
             {messages.map((message, index) => (
@@ -10,7 +10,7 @@ const ChatWindow = ({ messages, recipient }) => {
                 >
                     {/* Avatar for the message */}
                     <div className="message-avatar">
-                        <span>{message.user_id[0]}</span>
+                        <span>{username?.charAt(0)}</span>
                     </div>
 
                     {/* Message bubble */}
