@@ -3,12 +3,12 @@ import ChatHeader from '../min-components/header.js';
 import UsersList from '../min-components/userList.js';
 import ChatWindow from '../min-components/chatWindowComponent.js';
 import MessageInput from '../min-components/inputBox.js';
-import withNavigation from './with_nav.component'; 
+import withNavigation from './with_nav.component';
 
 class Home extends Component {
 
     state = {
-        rooms: [], 
+        rooms: [{ room_name: 'Home' }],
         userName: '',
     };
 
@@ -42,7 +42,7 @@ class Home extends Component {
                 const userNameData = await userNameResponse.json();
 
                 this.setState({
-                    rooms: roomsData.rooms || [],  // Set rooms in state
+                    rooms: [{ room_name: 'Home' }, ...roomsData.rooms] || [],  // Set rooms in state
                     userName: userNameData.user_name || '',  // Set user name in state
                 });
             } else {
@@ -56,7 +56,7 @@ class Home extends Component {
         window.history.pushState(null, null, window.location.href);
         window.addEventListener('popstate', this.handleBackButton);
     }
-    
+
     componentWillUnmount() {
         // Clean up only the event listener for the back button
         window.removeEventListener('popstate', this.handleBackButton);
@@ -73,7 +73,7 @@ class Home extends Component {
             if (response.ok) {
                 const data = await response.json();
                 const rooms = data.rooms || [];  // Extract the rooms array
-                this.setState({ rooms }); 
+                this.setState({ rooms: [{ room_name: 'Home' }, ...rooms] });
             } else {
                 console.error('Failed to fetch rooms:', response.status, response.statusText);
             }
@@ -87,7 +87,7 @@ class Home extends Component {
     };
 
     render() {
-        const { currentRoom, messages, sendMessage } = this.props;       
+        const { currentRoom, messages, sendMessage } = this.props;
         const { rooms, userName } = this.state;
         return (
             <div className="home-container">
@@ -102,19 +102,35 @@ class Home extends Component {
                         selectRoom={this.selectRoom}  // Change the room when a user is selected
                     />
 
-                    {/* Vertical line separator */}
+
                     <div className="separator"></div>
 
-                    {/* Chat window on the right */}
-                    <div className="chat-section">
-                        <ChatWindow
-                            username = {userName}
-                            messages={messages}
-                            recipient={currentRoom}
-                        />
-                        <MessageInput
-                            sendMessage={sendMessage}
-                        />
+                    <div className="chat-section home-room-container">
+
+                        {currentRoom === "Home" ? (
+                            <div className="home-room-content">
+                                <h1>The Rules:</h1>
+                                <p>Do whatever you want to.<br />
+                                    Make new friends, create, develop, hack, copy.<br />
+                                    It all anonymously! Nobody knows you, you know nobody.<br />
+                                    Data is encrypted.<br />
+                                    Usernames are randomly generated.<br />
+                                    Enjoy the game.
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+
+                                <ChatWindow
+                                    username={userName}
+                                    messages={messages}
+                                    recipient={currentRoom}
+                                />
+                                <MessageInput
+                                    sendMessage={sendMessage}
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

@@ -336,6 +336,18 @@ html, body, #root {
   flex-direction: column;
 }/* Chat window overall style */
 
+.home-room-content {
+  text-align: center;
+}
+
+
+.home-room-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;  /* Make sure it takes up the full width of the parent */
+  height: 100%; /* Full height of the chat section */
+}
 
 /* Sent message container */
 .message-sent-container {
