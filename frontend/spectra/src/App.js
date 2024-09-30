@@ -146,6 +146,7 @@ function App() {
                 <Home
                   userId={userId}
                   socket={socketRef.current}
+                  setMessages={setMessages}
                   messages={messages}  // Pass messages from App.js
                   sendMessage={sendMessage}  // Pass sendMessage function
                   currentRoom={currentRoom}

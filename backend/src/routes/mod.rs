@@ -1,12 +1,12 @@
 
 use std::sync::Arc;
 
-use axum::http::header::{AUTHORIZATION, CONTENT_TYPE, COOKIE, SET_COOKIE};
+//use axum::http::header::{AUTHORIZATION, CONTENT_TYPE, COOKIE, SET_COOKIE};
 use axum::routing::get;
 use socketioxide::layer::SocketIoLayer;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
-use axum::http::{HeaderValue, Method};
+//use axum::http::{HeaderValue, Method};
 
 
 use axum::Router;
@@ -21,11 +21,11 @@ pub mod room_routes;
 
 pub fn create_all_routes(db : Arc<DatabaseConnection>, ws_layer : SocketIoLayer) -> Router{
 
-    let cors = CorsLayer::new()
-        .allow_origin("http://10.10.9.136:3002".parse::<HeaderValue>().unwrap())
-        .allow_methods([Method::POST, Method::GET])
-        .allow_headers([AUTHORIZATION, SET_COOKIE, COOKIE, CONTENT_TYPE])
-        .allow_credentials(true);
+    //let cors = CorsLayer::new()
+    //    .allow_origin("http://10.10.9.136:3002".parse::<HeaderValue>().unwrap())
+    //    .allow_methods([Method::POST, Method::GET])
+    //    .allow_headers([AUTHORIZATION, SET_COOKIE, COOKIE, CONTENT_TYPE])
+    //    .allow_credentials(true);
 
     Router::new()
         .nest("/user", user_routes::create_user_routes(db.clone()))

@@ -1,30 +1,41 @@
 use std::sync::Arc;
 
-use axum::{http::StatusCode, response::IntoResponse, Extension, Json};
+use axum::{extract::Path, http::StatusCode, response::IntoResponse, Extension, Json};
 use entity::message;
-use sea_orm::{DatabaseConnection, EntityTrait, Set};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use crate::models::message_model::{AllMessagesRecieving, MessagePosting, MessageRecieving};
 
 
 pub async fn get_all_messages(
-    Extension(db) : Extension<DatabaseConnection>
+    Path(room_id) : Path<String>,
+    db : Extension<Arc<DatabaseConnection>>
 ) -> impl IntoResponse {
 
-    let messages = message::Entity::find().all(&db).await;
-    match messages {
-        Ok(res) => (
-            StatusCode::ACCEPTED, 
-            Json(AllMessagesRecieving {
-                messages : res.iter().map(|m| MessageRecieving {
-                    content: m.conent.to_string(),
+    let messages = message::Entity::find()
+        .filter(message::Column::Room.eq(room_id))
+        .all(db.as_ref())
+        .await;
+
+        match messages {
+            Ok(res) if !res.is_empty() => {
+                let messages: Vec<MessageRecieving> = res.iter().map(|m| MessageRecieving {
+                    content: m.conent.to_string(),  // Ensure this matches the DB schema
                     sender_id: m.sender_id.to_string(),
                     room: m.room.to_string(),
                     sending_time: m.sending_time.to_string(),
-                }).collect()
-            }),
-        ),
-        Err(_) => (StatusCode::NOT_FOUND, Json::default())
-    }
+                }).collect();
+    
+                (StatusCode::OK, Json(AllMessagesRecieving { messages }))
+            }
+            Ok(_) => {
+                tracing::warn!("No messages found for room_id");
+                (StatusCode::NOT_FOUND, Json::default())
+            }
+            Err(err) => {
+                tracing::error!("Error fetching messages for room_id: {:?}", err);
+                (StatusCode::INTERNAL_SERVER_ERROR, Json::default())
+            }
+        }
 
 }   
 

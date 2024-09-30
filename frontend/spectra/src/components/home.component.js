@@ -8,18 +8,40 @@ import withNavigation from './with_nav.component';
 class Home extends Component {
 
     state = {
-        rooms: [{ room_name: 'Home' }],
+        rooms: [{ room_name: 'Home', room_id: -1 }],
         userName: '',
     };
 
-    selectRoom = (room) => {
-        const { socket, currentRoom, setCurrentRoom } = this.props;
+    selectRoom = async (room) => {
+        const { socket, currentRoom, setCurrentRoom, setMessages } = this.props;
 
         if (currentRoom !== room.room_name) {
             socket.emit('leave', currentRoom);
             socket.emit('join', room.room_name);
             setCurrentRoom(room.room_name);  // Update room in App.js
         }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:3001/message/recieve/${room.room_name}`, {
+                method: 'GET',
+                credentials: 'include', 
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Messages received:', data); 
+                const parsedMessages = data.messages.map((msg) => {
+                    msg.date = new Date(msg.date);
+                    return msg;
+                });
+                setMessages(parsedMessages); 
+            } else {
+                console.error('Failed to fetch messages');
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+
     };
 
     async componentDidMount() {
@@ -42,7 +64,7 @@ class Home extends Component {
                 const userNameData = await userNameResponse.json();
 
                 this.setState({
-                    rooms: [{ room_name: 'Home' }, ...roomsData.rooms] || [],  // Set rooms in state
+                    rooms: [{ room_name: 'Home', room_id: -1 }, ...roomsData.rooms] || [],  // Set rooms in state
                     userName: userNameData.user_name || '',  // Set user name in state
                 });
             } else {
@@ -71,11 +93,10 @@ class Home extends Component {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                const rooms = data.rooms || [];  // Extract the rooms array
-                this.setState({ rooms: [{ room_name: 'Home' }, ...rooms] });
+                console.log('Successfully logged out');
+                this.props.navigate('/sign-in', { replace: true });
             } else {
-                console.error('Failed to fetch rooms:', response.status, response.statusText);
+                console.error('Failed to log out:', response.status, response.statusText);
             }
         } catch (error) {
             console.error('Error during fetch:', error);
@@ -124,6 +145,7 @@ class Home extends Component {
                                 <ChatWindow
                                     username={userName}
                                     messages={messages}
+                                    currentUserId = {this.props.userId}
                                     recipient={currentRoom}
                                 />
                                 <MessageInput
