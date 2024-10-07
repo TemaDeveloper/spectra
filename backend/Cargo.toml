@@ -30,3 +30,4 @@ base64 = "0.22.1"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 socketioxide = "0.14.1"
 tracing = "0.1.40"
+random_color = "1.0.0"

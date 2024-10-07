@@ -109,7 +109,7 @@ function App() {
     const newMessage = {
       content: messageText.trim(),
       room: currentRoom,
-      user_id: userId,
+      sender_id: userId,
       time: new Date().toISOString(),
     };
 

@@ -18,6 +18,7 @@ use axum::{
     Extension, Json,
 };
 use axum_extra::{headers, TypedHeader};
+use random_color::RandomColor;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter, Set};
 use tower_cookies::cookie::time::Duration;
 use tower_cookies::{cookie::SameSite, Cookie, Cookies};
@@ -31,10 +32,14 @@ pub async fn insert_user(
     let bearer_id = Uuid::new_v4();
     let user_id = Uuid::new_v4();
 
+    let mut random_color = RandomColor::new();
+    let user_color = random_color.to_hex(); 
+
     let new_user = user::ActiveModel {
         id: Set(user_id),
         username: Set(user_data.username.to_string()),
         password: Set(user_data.password.to_string()),
+        color: Set(user_color.to_string()),
         role: Set("User".to_string()),
     };
 
@@ -140,7 +145,7 @@ pub async fn login(
 
     let mut cookie = Cookie::new("bearer_id", bearer_id.to_string());
     cookie.set_http_only(true);
-    cookie.set_secure(false); //TODO: When I will use HTTPS turn on again
+    cookie.set_secure(true); //TODO: When I will use HTTPS turn on again
     cookie.set_path("/");
     cookie.set_max_age(Duration::hours(24));
     cookie.set_same_site(SameSite::None);
@@ -208,7 +213,7 @@ pub async fn get_user_name(
 
     match username {
         Ok(Some(user)) => {
-            let response = serde_json::json!({ "user_name": user.username }); // Assuming the field is `username`
+            let response = serde_json::json!({ "user_name": user.username });
             (StatusCode::OK, Json(response))
         }
         Ok(None) => {

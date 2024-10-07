@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize)]
 pub struct MessagePosting {
     pub content : String, 
-    pub user_id : Uuid, 
+    pub sender_id : Uuid, 
     pub room: String,
     pub sending_time: String,
 }
@@ -13,13 +13,13 @@ pub struct MessagePosting {
 pub struct MessageIn{
     pub room: String, 
     pub content: String,
-    pub user_id: Uuid
+    pub sender_id: Uuid
 }
 
 #[derive(Serialize, Clone)]
 pub struct MessageOut{
     pub content: String, 
-    pub user_id: Uuid, 
+    pub sender_id: Uuid, 
     pub date: chrono::DateTime<chrono::Utc>,
 }
 

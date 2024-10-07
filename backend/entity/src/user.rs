@@ -11,6 +11,8 @@ pub struct Model {
     pub username: String,
     pub password: String,
     pub role: String,
+    #[sea_orm(unique)]
+    pub color: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

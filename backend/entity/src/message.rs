@@ -14,6 +14,21 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::room::Entity",
+        from = "Column::Room",
+        to = "super::room::Column::RoomName",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Room,
+}
+
+impl Related<super::room::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Room.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

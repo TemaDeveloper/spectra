@@ -338,6 +338,24 @@ html, body, #root {
   flex-direction: column;
 }/* Chat window overall style */
 
+.popup-window {
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 100;
+}
+
+.popup-window button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+
 .home-room-content {
   text-align: center;
 }

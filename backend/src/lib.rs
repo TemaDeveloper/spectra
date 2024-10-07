@@ -38,7 +38,7 @@ async fn on_connect(socket: SocketRef, db: Arc<DatabaseConnection>) {
 
         let response = MessageOut {
             content: data.content.clone(),
-            user_id: data.user_id, //TODO: change from socket.id to Uuid
+            sender_id: data.sender_id, //TODO: change from socket.id to Uuid
             date: chrono::Utc::now(),
         };
         let _ = socket.within(data.room.clone()).emit("message", response.clone());
@@ -48,7 +48,7 @@ async fn on_connect(socket: SocketRef, db: Arc<DatabaseConnection>) {
                 db,
                 axum::Json(MessagePosting {
                     content: data.content.to_string(),
-                    user_id: data.user_id, //TODO: Change the user_id to actual id of a user
+                    sender_id: data.sender_id,
                     room: data.room.to_string(),
                     sending_time: response.date.to_string(),
                 }),

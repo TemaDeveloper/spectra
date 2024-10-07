@@ -48,7 +48,7 @@ pub async fn send_message(
     let new_message = message::ActiveModel{
         room: Set(message_data.room.to_string()),
         conent: Set(message_data.content.to_string()),
-        sender_id: Set(message_data.user_id.to_string()),
+        sender_id: Set(message_data.sender_id.to_string()),
         sending_time: Set(message_data.sending_time.to_string()),
         ..Default::default()
     };
