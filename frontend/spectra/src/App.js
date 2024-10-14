@@ -13,9 +13,9 @@ function App() {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [socket, setsocketConnection] = useState(null);
-  const [connected, setConnected] = useState(false);
   const [currentRoom, setCurrentRoom] = useState("Home");
   const [messages, setMessages] = useState([]);
+  const [keyPair, setKeyPair] = useState(null);
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -25,17 +25,6 @@ function App() {
   }, [currentRoom]);
 
   useEffect(() => {
-
-    // if (onceRef.current) {
-    //   return;
-    // }
-
-    //onceRef.current = true;
-    if (socketRef.current) return;
-
-    console.log("Attempting to establish WebSocket connection...");
-
-    // Make the auth request as before
     fetch('http://127.0.0.1:3001/', {
       method: 'GET',
       credentials: 'include',
@@ -61,6 +50,25 @@ function App() {
         setIsAuthenticated(false);
         setLoading(false);
       });
+  }, []);
+
+  useEffect(() => {
+
+    // async function initializeKeys() {
+    //   const keys = await generateKeys();
+    //   setKeyPair(keys);
+    //   // Store public key for sharing with other users
+    //   const publicKey = await window.crypto.subtle.exportKey("spki", keys.publicKey);
+    //   localStorage.setItem('publicKey', publicKey);  // Save public key in local storage
+    //   // Send public key to the server for sharing with other users
+    // }
+
+    // initializeKeys();
+    
+    if (socketRef.current) return;
+
+    console.log("Attempting to establish WebSocket connection...");
+
 
       //socketConnection init
       const socketConnection = io('ws://127.0.0.1:3001', {
@@ -77,10 +85,17 @@ function App() {
         socketRef.current.emit("join", currentRoom);
       });
 
-      socketRef.current.on("message", (msg) => {
+      socketRef.current.on("message", async (msg) => {
         console.log("Message received", msg);
         msg.date = new Date(msg.date.split('.')[0] + 'Z');
+
+        //msg.content = decryptedMessage;
         setMessages((prevMessages) => [...prevMessages, msg]);
+        // if (keyPair && keyPair.privateKey) {
+        //   const decryptedMessage = await decryptMessage(keyPair.privateKey, msg.content);
+        //   msg.content = decryptedMessage;
+        //   setMessages((prevMessages) => [...prevMessages, msg]);
+        // }
       });
     
       socketRef.current.on("messages", (msgs) => {
@@ -103,11 +118,14 @@ function App() {
         //socketConnection.disconnect();
       };
 
-  }, []);
+  }, [keyPair]);
 
-  const sendMessage = (messageText) => {
+  const sendMessage = async (messageText) => {
+    //const recipientPublicKey = await fetchRecipientPublicKey();  // Fetch recipient public key from backend
+    //const encryptedMessage = await encryptMessage(recipientPublicKey, messageText.trim());
     const newMessage = {
-      content: messageText.trim(),
+      //content: encryptedMessage,
+      content: messageText,
       room: currentRoom,
       sender_id: userId,
       time: new Date().toISOString(),

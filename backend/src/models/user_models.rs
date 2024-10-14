@@ -8,8 +8,8 @@ pub struct LoginPayload {
     pub credentials: String, 
 }
 
-// Decode credentials from base64 and return username and password
-pub fn decode_credentials(encoded: &str) -> Result<(String, String), Box<dyn std::error::Error>> {
+// Decode credentials from base64 and return username and password and public_key
+pub fn decode_credentials(encoded: &str) -> Result<(String, String, String), Box<dyn std::error::Error>> {
     // Use the standard base64 engine to decode the credentials
     let decoded_bytes = STANDARD.decode(encoded)?;
     
@@ -19,14 +19,15 @@ pub fn decode_credentials(encoded: &str) -> Result<(String, String), Box<dyn std
     // Split the decoded string by ':' to get username and password
     let parts: Vec<&str> = decoded_str.split(':').collect();
     
-    if parts.len() != 2 {
+    if parts.len() != 3 {
         return Err("Invalid encoded credentials".into());
     }
 
     let username = parts[0].to_string();
     let password = parts[1].to_string();
+    let public_key = parts[2].to_string();
 
-    Ok((username, password))
+    Ok((username, password, public_key))
 }
 
 #[derive(Deserialize, Serialize)]

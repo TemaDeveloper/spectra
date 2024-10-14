@@ -22,6 +22,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(User::Password).string().not_null())
                     .col(ColumnDef::new(User::Role).string().not_null())
                     .col(ColumnDef::new(User::Color).string().not_null().unique_key())
+                    .col(ColumnDef::new(User::PublicKey).string().not_null())
                     .to_owned(),
             )
             .await
@@ -43,4 +44,5 @@ enum User {
     Username,
     Password,
     Color,
+    PublicKey,
 }

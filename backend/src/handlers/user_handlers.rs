@@ -41,6 +41,7 @@ pub async fn insert_user(
         password: Set(user_data.password.to_string()),
         color: Set(user_color.to_string()),
         role: Set("User".to_string()),
+        public_key: Set("key".to_string()),
     };
 
     user::Entity::insert(new_user).exec(db.as_ref()).await.unwrap();
@@ -118,6 +119,20 @@ pub async fn login(
         }
     };
 
+    /*
+        -> DONE (1): Generate the RSA pair keys in frontend (when login) send the public key back to the backend with the request
+        -> DONE (2): Store the public key in the DB, check (when login) whether the public key is already exist or not, if not create a new one. 
+        TODO (3): Private keys are stored in indexed.db in keys.pem file if the user wants to change the browser -> transfer this file to another browser. 
+    
+    */
+    
+    if user.public_key.eq("key") {
+        let mut active_user: user::ActiveModel = user.clone().into();
+        active_user.public_key = Set(credentials.2);
+        user::Entity::update(active_user).exec(db.as_ref()).await.unwrap();
+    } 
+    
+
     // Issue JWT
     let token = match issue_jwt(user.id.to_string(), "User".to_string()) {
         Ok(token) => token,
@@ -159,11 +174,11 @@ pub async fn login(
         .unwrap()
 }
 
-fn decode_cred(user_data: Json<LoginPayload>) -> Result<(String, String), String> {
+fn decode_cred(user_data: Json<LoginPayload>) -> Result<(String, String, String), String> {
     match decode_credentials(&user_data.credentials) {
-        Ok((username, password)) => {
+        Ok((username, password, public_key)) => {
             // Return both username and password in the Ok variant
-            Ok((username, password))
+            Ok((username, password, public_key))
         }
         Err(_) => {
             // Return an error string if the decoding fails

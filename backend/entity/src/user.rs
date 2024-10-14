@@ -13,6 +13,7 @@ pub struct Model {
     pub role: String,
     #[sea_orm(unique)]
     pub color: String,
+    pub public_key: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
