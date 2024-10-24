@@ -38,8 +38,9 @@ async fn on_connect(socket: SocketRef, db: Arc<DatabaseConnection>) {
 
         let response = MessageOut {
             content: data.content.clone(),
-            sender_id: data.sender_id, //TODO: change from socket.id to Uuid
+            sender_id: data.sender_id, 
             date: chrono::Utc::now(),
+            iv: data.iv
         };
         let _ = socket.within(data.room.clone()).emit("message", response.clone());
 
@@ -51,6 +52,7 @@ async fn on_connect(socket: SocketRef, db: Arc<DatabaseConnection>) {
                     sender_id: data.sender_id,
                     room: data.room.to_string(),
                     sending_time: response.date.to_string(),
+                    iv: response.iv
                 }),
             )
             .await;

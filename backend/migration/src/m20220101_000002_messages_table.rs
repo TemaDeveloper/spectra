@@ -29,6 +29,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Message::Conent).string().not_null())
                     .col(ColumnDef::new(Message::SendingTime).string().not_null())
                     .col(ColumnDef::new(Message::SenderId).string().not_null())
+                    .col(ColumnDef::new(Message::IV).string().not_null())
                     .to_owned(),
             )
             .await
@@ -49,7 +50,8 @@ enum Message {
     SenderId,
     Conent,
     Room, 
-    SendingTime
+    SendingTime, 
+    IV
 }
 
 #[derive(Iden)]

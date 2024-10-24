@@ -14,6 +14,7 @@ pub struct Model {
     #[sea_orm(unique)]
     pub color: String,
     pub public_key: String,
+    pub session_key: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -13,8 +13,9 @@ class Home extends Component {
     };
 
     selectRoom = async (room) => {
-        const { socket, currentRoom, setCurrentRoom, setMessages } = this.props;
+        const { socket, currentRoom, setCurrentRoom, setMessages, decryptMessage } = this.props;
 
+    
         if (currentRoom !== room.room_name) {
             socket.emit('leave', currentRoom);
             socket.emit('join', room.room_name);
@@ -30,11 +31,34 @@ class Home extends Component {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Messages received:', data); 
-                const parsedMessages = data.messages.map((msg) => {
-                    msg.date = new Date(msg.date);
-                    return msg;
-                });
-                setMessages(parsedMessages); 
+
+                // Decrypt each message before setting state
+                const decryptedMessages = await Promise.all(
+                    data.messages.map(async (msg) => {
+                        try {
+                            if (!msg.iv || !msg.content) {
+                                console.error('Invalid message format:', msg);
+                                msg.content = '[Unable to decrypt message: Missing IV or content]';
+                                return msg;
+                            }
+
+                            // Decrypt the message content
+                            const decryptedContent = await decryptMessage(msg.content, msg.iv);
+                            msg.content = decryptedContent;
+
+                            // Parse the date correctly
+                            msg.date = new Date(msg.date);
+
+                            return msg;
+                        } catch (error) {
+                            console.error('Error decrypting message:', error);
+                            msg.content = '[Error decrypting message]';
+                            return msg;
+                        }
+                    })
+                );
+
+                setMessages(decryptedMessages.filter((msg) => msg !== null));
             } else {
                 console.error('Failed to fetch messages');
             }

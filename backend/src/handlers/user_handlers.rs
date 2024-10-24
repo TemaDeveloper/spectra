@@ -11,7 +11,6 @@ use ::entity::user;
 use axum::{
     body::Body,
     http::{
-        header::{self},
         Response, StatusCode,
     },
     response::IntoResponse,
@@ -25,11 +24,9 @@ use tower_cookies::{cookie::SameSite, Cookie, Cookies};
 use uuid::Uuid;
 
 pub async fn insert_user(
-    cookies: Cookies,
     Extension(db): Extension<Arc<DatabaseConnection>>,
     user_data: Json<CreateUser>,
 ) -> impl IntoResponse {
-    let bearer_id = Uuid::new_v4();
     let user_id = Uuid::new_v4();
 
     let mut random_color = RandomColor::new();
@@ -42,38 +39,10 @@ pub async fn insert_user(
         color: Set(user_color.to_string()),
         role: Set("User".to_string()),
         public_key: Set("key".to_string()),
+        session_key: Set("sess".to_string()),
     };
 
     user::Entity::insert(new_user).exec(db.as_ref()).await.unwrap();
-
-    match issue_jwt(user_id.to_string(), "User".to_string()) {
-        Ok(token) => {
-            let token_clone = token.clone();
-
-            match set_session_id(bearer_id.to_string(), user_id.to_string()).await {
-                Ok(_) => println!("The bearer_id was stored in redis"),
-                Err(_) => eprintln!("The error occured in storing bearer_id into redis"),
-            }
-
-            let mut cookie = Cookie::new("bearer_id", bearer_id.to_string());
-            cookie.set_http_only(true);
-            cookie.set_path("/");
-            cookie.set_secure(true);
-            cookie.set_max_age(Duration::hours(24));
-            cookie.set_same_site(SameSite::None);
-            cookies.add(cookie);
-
-            Response::builder()
-                .header(header::AUTHORIZATION, format!("Bearer {}", token_clone))
-                .status(StatusCode::CREATED)
-                .body(Body::default())
-                .unwrap()
-        }
-        Err(_) => Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body(Body::default())
-            .unwrap(),
-    }
 }
 
 pub async fn login(
@@ -122,11 +91,11 @@ pub async fn login(
     /*
         -> DONE (1): Generate the RSA pair keys in frontend (when login) send the public key back to the backend with the request
         -> DONE (2): Store the public key in the DB, check (when login) whether the public key is already exist or not, if not create a new one. 
-        TODO (3): Private keys are stored in indexed.db in keys.pem file if the user wants to change the browser -> transfer this file to another browser. 
-    
+        TODO (3): Retrieve public key from the backend using the endpoint 
+        TODO (4): Private keys are stored in indexed.db in keys.pem file if the user wants to change the browser -> transfer this file to another browser. 
     */
     
-    if user.public_key.eq("key") {
+    if user.public_key.eq("key"){
         let mut active_user: user::ActiveModel = user.clone().into();
         active_user.public_key = Set(credentials.2);
         user::Entity::update(active_user).exec(db.as_ref()).await.unwrap();

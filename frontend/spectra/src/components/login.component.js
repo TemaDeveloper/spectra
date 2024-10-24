@@ -16,6 +16,37 @@ class Login extends Component {
         return btoa(credentials); // Base64 encode the string
     }
 
+    // generateSessionKey = async () => {
+    //     const sessionKey = await window.crypto.subtle.generateKey(
+    //       {
+    //         name: "AES-GCM",
+    //         length: 256,
+    //       },
+    //       true,
+    //       ["encrypt", "decrypt"]
+    //     );
+    //     // Store session key on the server securely
+    //     return sessionKey;
+    //   };
+    
+    // distributeSessionKeyToNewUser = async (sessionKey, newUserPublicKey) => {
+    //     const exportedSessionKey = await window.crypto.subtle.exportKey("raw", sessionKey);
+      
+    //     // Encrypt session key with the new user's public key
+    //     const encryptedSessionKey = await window.crypto.subtle.encrypt(
+    //       {
+    //         name: "RSA-OAEP"
+    //       },
+    //       newUserPublicKey,
+    //       exportedSessionKey
+    //     );
+      
+    //     // Send encrypted session key to the new user
+    //     return encryptedSessionKey;
+    //   };
+      
+      
+
     generateRSAKeyPair = async () => {
         const keyPair = await window.crypto.subtle.generateKey(
             {
@@ -48,9 +79,11 @@ class Login extends Component {
 
         const { username, password } = this.state;
         const publicKey = await this.generateRSAKeyPair();
+
+        //const encryptedSessionKey = await this.distributeSessionKeyToNewUser(sessionKey, publicKey);
+          
         const encodedCredentials = this.encodeCredentials(username, password, publicKey); // add public key here as well
         
-
         try {
             const response = await fetch('http://127.0.0.1:3001/user/login', {
                 method: 'POST',
@@ -66,8 +99,6 @@ class Login extends Component {
                 console.log('Response:', result); 
                 this.props.setIsAuthenticated(true);
                 this.props.navigate('/home');
-                //this.setState({ loginSuccess: true });
-                // Redirect to home or show a success message
             } else {
                 console.error('Failed to login:', response.status, response.statusText);
             }
